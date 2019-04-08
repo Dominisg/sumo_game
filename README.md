@@ -1,4 +1,4 @@
-#Sumo Game
+# Sumo Game
 
 ## Running on Linux
 
