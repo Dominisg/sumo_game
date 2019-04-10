@@ -8,20 +8,24 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
+        {sf::Keyboard::Down,sf::Keyboard::Up,sf::Keyboard::Left,sf::Keyboard::Right},
+        {sf::Keyboard::S,sf::Keyboard::W,sf::Keyboard::A,sf::Keyboard::D}
+    };
+
+int Sumo::players_counter = 0;
+sf::Texture* Sumo::texture = nullptr;
+
 Sumo::Sumo(float px, float py) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
 
-	for (int i = 0; i < 72; i++) {
-		std::string filename = "spritesheets/sumo_angle" + std::to_string(5 * i) + ".png";
-		texture[i].loadFromFile(filename);
-	}
-	
 	setDirection(0);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
 	px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5;
 	py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5;
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
 	sprite.setPosition(px, py);
+	control_setup = static_cast<CONTROLS>(players_counter++);
 }
 
 sf::Sprite Sumo::getSprite() {
@@ -40,7 +44,7 @@ void Sumo::update() {
 		std::cout << this->velocity.x << " " << this->velocity.y << std::endl;
 		this->sprite.move(this->velocity);
 		
-		//(1) z powodu niedok³adnoœci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr¹gliæ
+		//(1) z powodu niedokï¿½adnoï¿½ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokrï¿½gliï¿½
 		if (actual_velocity > -0.2 && actual_velocity < 0.2)
 			actual_velocity = 0;
 		
@@ -52,23 +56,23 @@ void Sumo::update() {
 		}
 		
 
-		bool didMove = actual_velocity !=0 ? true : false;
+		bool didMove = actual_velocity !=0;
 		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0]))
 		{
 			if(actual_velocity < max_velocity)
 				actual_velocity += d_velocity;
 			didMove = true;
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1]))
 		{
 			if (actual_velocity > -max_velocity)
 				actual_velocity -= d_velocity;
 			didMove = true;
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2]))
 		{
 			angle-=angle_rotation;
 			angle += 360;
@@ -76,7 +80,7 @@ void Sumo::update() {
 			didMove = true;
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3]))
 		{
 			angle+=angle_rotation;
 			angle += 360;
@@ -100,8 +104,6 @@ void Sumo::update() {
 			}
 			else
 				rectSprite.left += 300;
-
-			
 		}
 		sprite.setTextureRect(rectSprite);
 		clock.restart();
@@ -112,4 +114,16 @@ void Sumo::update() {
 
 void Sumo::setDirection(int dir) {
 	this->sprite.setTexture(texture[dir]);
+}
+
+int Sumo::getPlayersCounter() {
+    return players_counter;
+}
+
+sf::Texture * Sumo::getTextures() {
+    return texture;
+}
+
+void Sumo::setTextures(sf::Texture *t) {
+    texture = t;
 }
