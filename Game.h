@@ -15,7 +15,8 @@ enum SCREENSIZE{
 class Game{
 private:
     sf::RenderWindow* main_window;
-    Sumo* player;
+    Sumo** players;
+	int playersInGame;
 public:
     Game();
     ~Game();

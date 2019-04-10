@@ -6,12 +6,17 @@
 
 Game::Game() {
     main_window = new sf::RenderWindow(sf::VideoMode(SCREENSIZE::X, SCREENSIZE::Y), "Sumo Slam");
-    player = new Sumo[1]();
+	playersInGame = 1;
+	players = new Sumo*[playersInGame];
+	players[0] = new Sumo(0.0, 0.0);
 
 }
 
 Game::~Game() {
-    delete [] player;
+	for (int i = 0; i < playersInGame; i++)
+		delete players[i];
+
+    delete [] players;
     delete main_window;
 }
 
@@ -32,9 +37,9 @@ void Game::mainLoop() {
                     break;
             }
         }
-        player[0].moveHandle();
+        players[0]->update();
         main_window->clear();
-        main_window->draw(player[0].getSprite());
+        main_window->draw(players[0]->getSprite());
         main_window->display();
     }
 }
