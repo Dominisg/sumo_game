@@ -18,7 +18,7 @@ sf::Texture* Sumo::texture = nullptr;
 
 Sumo::Sumo(float px, float py) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
-
+    sprite.setTextureRect(rectSprite);
 	setDirection(0);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
 	px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5;

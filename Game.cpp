@@ -3,13 +3,16 @@
 //
 
 #include "Game.h"
+#include "utils/Progressbar.h"
 
 Game::Game() {
     main_window = new sf::RenderWindow(sf::VideoMode(SCREENSIZE::X, SCREENSIZE::Y), "Sumo Slam");
+    Progressbar p_bar(main_window,sf::Vector2f(SCREENSIZE::X/2,SCREENSIZE::Y/2),200.,72.);
     auto *tmptexture = new sf::Texture[72];
     for (int i = 0; i < 72; i++) {
         std::string filename = "spritesheets/sumo_angle" + std::to_string(5 * i) + ".png";
         tmptexture[i].loadFromFile(filename);
+        p_bar.updateProgress(i);
     }
     Sumo::setTextures(tmptexture);
 	players = new Sumo*[Sumo::getPlayersCounter() + 1];
