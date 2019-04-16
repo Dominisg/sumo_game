@@ -16,22 +16,22 @@ sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
 int Sumo::players_counter = 0;
 sf::Texture* Sumo::texture = nullptr;
 
-Sumo::Sumo(float px, float py) {
+Sumo::Sumo(float x, float y, sf::Color color) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
 	sprite.setTextureRect(rectSprite);
 	setDirection(0);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
 
 
-	px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5;
-	py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5;
+	float px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5 + x;
+	float py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5 + y;
 
 	contour.setRadius({ 32,28 });
 	contour.setOrigin({ contour.getRadius().x, contour.getRadius().y });
 	contour.setPosition(px, py+25);
 	contour.setFillColor(sf::Color::Transparent);
 	contour.setOutlineThickness(2);
-	contour.setOutlineColor(sf::Color::Yellow);
+	contour.setOutlineColor(color);
 
 	
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
@@ -57,7 +57,7 @@ void Sumo::update() {
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
 		this->sprite.move(this->velocity);
 		this->contour.move(this->velocity);
-
+		contour.setRotation(angle);
 		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
 		if (actual_velocity > -0.2 && actual_velocity < 0.2)
 			actual_velocity = 0;
@@ -91,7 +91,7 @@ void Sumo::update() {
 			angle += 360;
 			angle %= 360;
 			didMove = true;
-			contour.rotate(-angle_rotation);
+			//contour.rotate(-angle_rotation);
 		}
 
 		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3]))
@@ -100,7 +100,7 @@ void Sumo::update() {
 			angle += 360;
 			angle %= 360;
 			didMove = true;
-			contour.rotate(angle_rotation);
+			//contour.rotate(angle_rotation);
 		}
 
 		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
@@ -108,7 +108,6 @@ void Sumo::update() {
 		
 		setDirection(angle / 5);
 		
-
 		if (didMove) {
 			//frames changing
 			if (rectSprite.left == 1500) {
@@ -127,19 +126,99 @@ void Sumo::update() {
 	}
 	
 }
-
 void Sumo::setDirection(int dir) {
 	this->sprite.setTexture(texture[dir]);
 }
-
+float Sumo::getActualVelocity() {
+	return actual_velocity;
+}
+void Sumo::setActualVelocity(float v) {
+	actual_velocity = v;
+}
+void Sumo::setVelocity(sf::Vector2f v) {
+	velocity = v;
+}
+sf::Vector2f Sumo::getVelocity() {
+	return velocity;
+}
+int Sumo::getAngle() {
+	return angle;
+}
+void Sumo::setAngle(int a) {
+	angle = a;
+}
 int Sumo::getPlayersCounter() {
     return players_counter;
 }
-
 sf::Texture * Sumo::getTextures() {
     return texture;
 }
-
 void Sumo::setTextures(sf::Texture *t) {
     texture = t;
+}
+float Sumo::contourLeft(){
+	return contour.getGlobalBounds().left;
+}
+float Sumo::contourRight() {
+	return contour.getGlobalBounds().left + contour.getGlobalBounds().width;
+}
+float Sumo::contourTop() {
+	return contour.getGlobalBounds().top;
+}
+float Sumo::contourBottom() {
+	return contour.getGlobalBounds().top + contour.getGlobalBounds().height;
+}
+bool isInterescting(Sumo &a, Sumo &b) {
+	/*return	((a.contourRight()) >= b.contourLeft()) &&
+			(a.contourLeft() <= b.contourRight()) &&
+			(a.contourBottom() >= b.contourTop()) &&
+			(a.contourTop() <= b.contourBottom());
+			*/
+	//ellipse is estimated with cirlce
+	float x = a.getContour().getPosition().x - b.getContour().getPosition().x;
+	float y = a.getContour().getPosition().y - b.getContour().getPosition().y;
+	float dist = x * x + y * y;
+	float radius = (a.getContour().getRadius().x + a.getContour().getRadius().y) / 2;
+	return dist <= (radius + radius + 10)*(radius + radius + 10);
+
+}
+sf::Vector2f collide(Sumo &a, Sumo &b) {
+
+	float av = abs(a.getActualVelocity());
+	float bv = abs(b.getActualVelocity());
+
+
+
+	float tmp = a.getActualVelocity();
+	a.setActualVelocity(b.getActualVelocity());
+	b.setActualVelocity(tmp);
+
+	sf::Vector2f tmp2 = a.getVelocity();
+	a.setVelocity(b.getVelocity());
+	b.setVelocity(tmp2);
+
+	//slower sumo gets rotation of faster
+	if (av > bv) {
+		b.setAngle(a.getAngle());
+	}
+	else if (av == bv) {
+		int t = a.getAngle();
+		a.setAngle(b.getAngle());
+		b.setAngle(t);
+	}
+	else {
+		a.setAngle(b.getAngle());
+	}
+
+	return { 0.f, 0.f };
+
+}
+bool Sumo::checkForCollision(Sumo &other) {
+	if (!isInterescting(*this, other)) return false;
+
+	//problem jest w collide!!!
+	collide(*this, other);
+
+	return true;
+	
 }

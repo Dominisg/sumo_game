@@ -32,7 +32,7 @@ class Sumo : public sf::Drawable {
 	void draw(sf::RenderTarget& target, sf::RenderStates state) const override;
 
 public:
-	Sumo(float px, float py);
+	Sumo(float x, float y, sf::Color color);
 	Sumo() = delete;
 	~Sumo() = default;
 
@@ -41,6 +41,17 @@ public:
 
 	void update();
 	void setDirection(int angle);
+	bool checkForCollision(Sumo& other);
+	float getActualVelocity();
+	sf::Vector2f getVelocity();
+	int getAngle();
+	void setAngle(int);
+	void setActualVelocity(float);
+	void setVelocity(sf::Vector2f);
+	float contourLeft();
+	float contourRight();
+	float contourTop();
+	float contourBottom();
 	static int getPlayersCounter();
 	static sf::Texture* getTextures();
 	static void setTextures(sf::Texture* t);

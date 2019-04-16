@@ -16,8 +16,8 @@ Game::Game() {
     }
     Sumo::setTextures(tmptexture);
 	players = new Sumo*[Sumo::getPlayersCounter() + 1];
-	players[0] = new Sumo(0.0, 0.0);
-    //players[1] = new Sumo(0.0, 0.0);
+	players[0] = new Sumo(200.f, 0.0, sf::Color::Blue);
+    players[1] = new Sumo(-200.f, 0.0, sf::Color::Red);
 }
 
 Game::~Game() {
@@ -47,6 +47,9 @@ void Game::mainLoop() {
             }
         }
 		//players moving
+		//check only once for two players
+		players[0]->checkForCollision(*players[1]);
+		//players[1]->checkForCollision(*players[0]);
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
 			players[i]->update();
 		}
