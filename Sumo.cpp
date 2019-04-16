@@ -217,6 +217,7 @@ bool Sumo::checkForCollision(Sumo &other) {
 	if (!isInterescting(*this, other)) return false;
 
 	//problem jest w collide!!!
+	//postaci się blokują
 	collide(*this, other);
 
 	return true;
