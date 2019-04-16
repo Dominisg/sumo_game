@@ -17,7 +17,7 @@ Game::Game() {
     Sumo::setTextures(tmptexture);
 	players = new Sumo*[Sumo::getPlayersCounter() + 1];
 	players[0] = new Sumo(0.0, 0.0);
-    players[1] = new Sumo(0.0, 0.0);
+    //players[1] = new Sumo(0.0, 0.0);
 }
 
 Game::~Game() {
@@ -46,11 +46,18 @@ void Game::mainLoop() {
                     break;
             }
         }
-        for (int i = 0; i < Sumo::getPlayersCounter(); i++)
-            players[i]->update();
+		//players moving
+		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
+			players[i]->update();
+		}
         main_window->clear();
-        for (int i = 0; i < Sumo::getPlayersCounter(); i++)
-            main_window->draw(players[i]->getSprite());
+
+		//drawing players
+		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
+			main_window->draw(players[i]->getContour());
+			main_window->draw(players[i]->getSprite());
+			
+		}
         main_window->display();
     }
 }

@@ -2,7 +2,7 @@
 // Created by dominis on 08.04.19.
 //
 #include <SFML/Graphics.hpp>
-
+#include "EllipseShape.h"
 #ifndef SUMO_PR_SUMO_H
 #define SUMO_PR_SUMO_H
 
@@ -16,6 +16,7 @@ class Sumo : public sf::Drawable {
 	sf::Sprite sprite;
 	static sf::Texture *texture;
 	sf::IntRect rectSprite;
+	EllipseShape contour;
 	sf::Clock clock;
 
 	float max_velocity = 6.f;
@@ -36,6 +37,7 @@ public:
 	~Sumo() = default;
 
 	sf::Sprite getSprite();
+	EllipseShape getContour();
 
 	void update();
 	void setDirection(int angle);

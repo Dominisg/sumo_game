@@ -18,11 +18,22 @@ sf::Texture* Sumo::texture = nullptr;
 
 Sumo::Sumo(float px, float py) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
-    sprite.setTextureRect(rectSprite);
+	sprite.setTextureRect(rectSprite);
 	setDirection(0);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
+
+
 	px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5;
 	py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5;
+
+	contour.setRadius({ 32,28 });
+	contour.setOrigin({ contour.getRadius().x, contour.getRadius().y });
+	contour.setPosition(px, py+25);
+	contour.setFillColor(sf::Color::Transparent);
+	contour.setOutlineThickness(2);
+	contour.setOutlineColor(sf::Color::Yellow);
+
+	
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
 	sprite.setPosition(px, py);
 	control_setup = static_cast<CONTROLS>(players_counter++);
@@ -32,18 +43,21 @@ sf::Sprite Sumo::getSprite() {
 	return sprite;
 }
 
+EllipseShape Sumo::getContour() {
+	return contour;
+}
+
 void Sumo::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	target.draw(this->sprite, state);
+	//target.draw(this->contour, state);
 }
 
 void Sumo::update() {
-	//sf::Vector2f start, pos = sprite.getPosition();
-	//start = pos;
 	
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
-		std::cout << this->velocity.x << " " << this->velocity.y << std::endl;
 		this->sprite.move(this->velocity);
-		
+		this->contour.move(this->velocity);
+
 		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
 		if (actual_velocity > -0.2 && actual_velocity < 0.2)
 			actual_velocity = 0;
@@ -53,8 +67,7 @@ void Sumo::update() {
 		}
 		else if (actual_velocity < 0) {
 			actual_velocity += friction;
-		}
-		
+		}	
 
 		bool didMove = actual_velocity !=0;
 		
@@ -78,6 +91,7 @@ void Sumo::update() {
 			angle += 360;
 			angle %= 360;
 			didMove = true;
+			contour.rotate(-angle_rotation);
 		}
 
 		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3]))
@@ -86,12 +100,14 @@ void Sumo::update() {
 			angle += 360;
 			angle %= 360;
 			didMove = true;
+			contour.rotate(angle_rotation);
 		}
 
 		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
 		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
 		
 		setDirection(angle / 5);
+		
 
 		if (didMove) {
 			//frames changing
