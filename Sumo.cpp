@@ -39,11 +39,11 @@ Sumo::Sumo(float x, float y, sf::Color color) {
 	control_setup = static_cast<CONTROLS>(players_counter++);
 }
 
-sf::Sprite Sumo::getSprite() {
+sf::Sprite& Sumo::getSprite() {
 	return sprite;
 }
 
-EllipseShape Sumo::getContour() {
+EllipseShape& Sumo::getContour() {
 	return contour;
 }
 

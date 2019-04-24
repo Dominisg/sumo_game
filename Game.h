@@ -6,6 +6,8 @@
 #define SUMO_PR_GAME_H
 #include <SFML/Graphics.hpp>
 #include "Sumo.h"
+#include "Ring.h"
+
 #define LOCAL_PLAYERS_MAX 2
 
 enum SCREENSIZE{
@@ -15,8 +17,9 @@ enum SCREENSIZE{
 
 class Game{
 private:
-    sf::RenderWindow* main_window;
-    Sumo** players;
+    sf::RenderWindow *main_window;
+    Sumo **players;
+    Ring *ring;
 public:
     Game();
     ~Game();

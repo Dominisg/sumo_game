@@ -36,8 +36,8 @@ public:
 	Sumo() = delete;
 	~Sumo() = default;
 
-	sf::Sprite getSprite();
-	EllipseShape getContour();
+	sf::Sprite& getSprite();
+	EllipseShape& getContour();
 
 	void update();
 	void setDirection(int angle);
