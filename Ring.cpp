@@ -5,6 +5,7 @@
 #include "Ring.h"
 #include "Game.h"
 #include <cmath>
+#include <iostream>
 
 
 sf::Sprite Ring::getSprite() {
@@ -19,8 +20,6 @@ Ring::Ring(const char* texturepath) {
 
     texture.loadFromFile("spritesheets/ring.png");
     sprite.setTexture(texture);
-    float px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5 ;
-    float py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5 ;
 
     contour.setRadius({ 315,165 });
     contour.setOrigin({ contour.getRadius().x, contour.getRadius().y });
@@ -33,10 +32,14 @@ Ring::Ring(const char* texturepath) {
 bool Ring::isInside(Sumo *s) {
     EllipseShape scon = s->getContour();
     sf::Vector2f pos;
+    sf::Transform tf = scon.getTransform();
+
 
     for (int i =0; i<scon.getPointCount();i++){
-        pos = scon.getPoint(i) + scon.getPosition();
-        if(pow((pos.x-680),2)/(315*315) + pow((pos.y-245),2)/(165*165) < 1)
+        pos = scon.getPoint(i);
+        pos = tf.transformPoint(pos);
+
+        if(pow((pos.x-680),2)/pow(315,2) + pow((pos.y-245),2)/pow(165,2) < 1)
             return true;
     }
     return false;
