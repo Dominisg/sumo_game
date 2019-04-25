@@ -20,6 +20,7 @@ private:
     sf::RenderWindow *main_window;
     Sumo **players;
     Ring *ring;
+    void restartGame();
 public:
     Game();
     ~Game();

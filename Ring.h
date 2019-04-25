@@ -23,5 +23,4 @@ public:
 };
 
 
-
 #endif //SUMO_PR_RING_H

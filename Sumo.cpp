@@ -16,11 +16,12 @@ sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
 int Sumo::players_counter = 0;
 sf::Texture* Sumo::texture = nullptr;
 
-Sumo::Sumo(float x, float y, sf::Color color) {
+Sumo::Sumo(float x, float y,int angle, sf::Color color) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
 	sprite.setTextureRect(rectSprite);
-	setDirection(0);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
+    this->angle = angle;
+    setDirection(angle/5);
 
 
 	float px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5 + x;
@@ -32,11 +33,16 @@ Sumo::Sumo(float x, float y, sf::Color color) {
 	contour.setFillColor(sf::Color::Transparent);
 	contour.setOutlineThickness(2);
 	contour.setOutlineColor(color);
-
+    contour.setRotation(angle);
 	
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
 	sprite.setPosition(px, py);
 	control_setup = static_cast<CONTROLS>(players_counter++);
+	disabled = false;
+}
+
+Sumo::~Sumo(){
+    players_counter--;
 }
 
 sf::Sprite& Sumo::getSprite() {
@@ -53,7 +59,6 @@ void Sumo::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 }
 
 void Sumo::update() {
-	
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
 		this->sprite.move(this->velocity);
 		this->contour.move(this->velocity);
@@ -70,38 +75,37 @@ void Sumo::update() {
 		}	
 
 		bool didMove = actual_velocity !=0;
-		
-		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0]))
-		{
-			if(actual_velocity < max_velocity)
-				actual_velocity += d_velocity;
-			didMove = true;
-		}
 
-		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1]))
-		{
-			if (actual_velocity > -max_velocity)
-				actual_velocity -= d_velocity;
-			didMove = true;
-		}
+		if(!disabled) {
 
-		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2]))
-		{
-			angle-=angle_rotation;
-			angle += 360;
-			angle %= 360;
-			didMove = true;
-			//contour.rotate(-angle_rotation);
-		}
+            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0])) {
+                if (actual_velocity < max_velocity)
+                    actual_velocity += d_velocity;
+                didMove = true;
+            }
 
-		if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3]))
-		{
-			angle+=angle_rotation;
-			angle += 360;
-			angle %= 360;
-			didMove = true;
-			//contour.rotate(angle_rotation);
-		}
+            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1])) {
+                if (actual_velocity > -max_velocity)
+                    actual_velocity -= d_velocity;
+                didMove = true;
+            }
+
+            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2])) {
+                angle -= angle_rotation;
+                angle += 360;
+                angle %= 360;
+                didMove = true;
+                //contour.rotate(-angle_rotation);
+            }
+
+            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3])) {
+                angle += angle_rotation;
+                angle += 360;
+                angle %= 360;
+                didMove = true;
+                //contour.rotate(angle_rotation);
+            }
+        }
 
 		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
 		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
@@ -156,38 +160,27 @@ sf::Texture * Sumo::getTextures() {
 void Sumo::setTextures(sf::Texture *t) {
     texture = t;
 }
-float Sumo::contourLeft(){
-	return contour.getGlobalBounds().left;
-}
-float Sumo::contourRight() {
-	return contour.getGlobalBounds().left + contour.getGlobalBounds().width;
-}
-float Sumo::contourTop() {
-	return contour.getGlobalBounds().top;
-}
-float Sumo::contourBottom() {
-	return contour.getGlobalBounds().top + contour.getGlobalBounds().height;
-}
+
 bool isInterescting(Sumo &a, Sumo &b) {
-	/*return	((a.contourRight()) >= b.contourLeft()) &&
-			(a.contourLeft() <= b.contourRight()) &&
-			(a.contourBottom() >= b.contourTop()) &&
-			(a.contourTop() <= b.contourBottom());
-			*/
 	//ellipse is estimated with cirlce
+
+	if(a.elapsedTimeCollision().asSeconds()<0.3 && b.elapsedTimeCollision().asSeconds()<0.3)
+	    return false;
 	float x = a.getContour().getPosition().x - b.getContour().getPosition().x;
 	float y = a.getContour().getPosition().y - b.getContour().getPosition().y;
 	float dist = x * x + y * y;
-	float radius = (a.getContour().getRadius().x + a.getContour().getRadius().y) / 2;
-	return dist <= (radius + radius + 10)*(radius + radius + 10);
+	float radius = a.getContour().getRadius().y;
+	return dist <= (radius + radius )*(radius + radius);
 
 }
 sf::Vector2f collide(Sumo &a, Sumo &b) {
 
+
 	float av = abs(a.getActualVelocity());
 	float bv = abs(b.getActualVelocity());
 
-
+    a.wasCollision();
+    b.wasCollision();
 
 	float tmp = a.getActualVelocity();
 	a.setActualVelocity(b.getActualVelocity());
@@ -213,6 +206,7 @@ sf::Vector2f collide(Sumo &a, Sumo &b) {
 	return { 0.f, 0.f };
 
 }
+
 bool Sumo::checkForCollision(Sumo &other) {
 	if (!isInterescting(*this, other)) return false;
 
@@ -222,4 +216,19 @@ bool Sumo::checkForCollision(Sumo &other) {
 
 	return true;
 	
+}
+
+void Sumo::disable() {
+    disabled = true;
+}
+
+bool Sumo::isDisabled() {
+    return disabled;
+}
+
+sf::Time Sumo::elapsedTimeCollision() {
+    return collision_cooldown.getElapsedTime();
+}
+void Sumo::wasCollision() {
+    collision_cooldown.restart();
 }

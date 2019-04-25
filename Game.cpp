@@ -21,13 +21,14 @@ Game::Game() {
 
     ring= new Ring("spritesheets/ring.png");
 
-	players = new Sumo*[Sumo::getPlayersCounter() + 1];
-	players[0] = new Sumo(200.f, 0.0, sf::Color::Blue);
-    players[1] = new Sumo(-200.f, 0.0, sf::Color::Red);
+	players = new Sumo*[LOCAL_PLAYERS_MAX];
+	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
+    players[1] = new Sumo(40, -100, 60, sf::Color::Red);
 }
 
 Game::~Game() {
-	for (int i = 0; i < Sumo::getPlayersCounter(); i++)
+    int p_cnt = Sumo::getPlayersCounter();
+	for (int i = 0; i < p_cnt; i++)
 		delete players[i];
 
     delete [] players;
@@ -48,6 +49,12 @@ void Game::mainLoop() {
                     main_window->close();
                     break;
                     // we don't process other types of events
+                case sf::Event::KeyPressed:
+                    if (event.key.code == sf::Keyboard::Escape){
+                        this->restartGame();
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -62,11 +69,11 @@ void Game::mainLoop() {
         main_window->clear();
 
 		main_window->draw(ring->getSprite());
-        main_window->draw(ring->getContour());
 
         //drawing elipses
         for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-            main_window->draw(players[i]->getContour());
+            if(!players[i]->isDisabled())
+                main_window->draw(players[i]->getContour());
         }
 
 		//drawing players
@@ -74,9 +81,23 @@ void Game::mainLoop() {
 			main_window->draw(*players[i]);
 		}
 
-        //drawing players
-
-        printf(ring->isInside(players[0])?"true\n":"false\n");
+        //disabling players outside the ring
+        for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
+            if (!ring->isInside(players[i])) {
+                players[i]->disable();
+            }
+        }
         main_window->display();
     }
+}
+
+void Game::restartGame() {
+    int p_cnt = Sumo::getPlayersCounter();
+    for (int i = 0; i < p_cnt; i++)
+        delete players[i];
+    delete [] players;
+
+    players = new Sumo*[LOCAL_PLAYERS_MAX];
+    players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
+    players[1] = new Sumo(40, -100, 60, sf::Color::Red);
 }

@@ -18,6 +18,7 @@ class Sumo : public sf::Drawable {
 	sf::IntRect rectSprite;
 	EllipseShape contour;
 	sf::Clock clock;
+	sf::Clock collision_cooldown;
 
 	float max_velocity = 6.f;
 	float actual_velocity = 0.f;
@@ -28,13 +29,14 @@ class Sumo : public sf::Drawable {
 	sf::Vector2f velocity{ 0.f, 0.f };
 	CONTROLS control_setup;
 	static int players_counter;
+	bool disabled;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates state) const override;
 
 public:
-	Sumo(float x, float y, sf::Color color);
+	Sumo(float x, float y,int angle, sf::Color color);
 	Sumo() = delete;
-	~Sumo() = default;
+	~Sumo();
 
 	sf::Sprite& getSprite();
 	EllipseShape& getContour();
@@ -48,13 +50,13 @@ public:
 	void setAngle(int);
 	void setActualVelocity(float);
 	void setVelocity(sf::Vector2f);
-	float contourLeft();
-	float contourRight();
-	float contourTop();
-	float contourBottom();
 	static int getPlayersCounter();
 	static sf::Texture* getTextures();
 	static void setTextures(sf::Texture* t);
+	void disable();
+	bool isDisabled();
+	sf::Time elapsedTimeCollision();
+	void wasCollision();
 };
 
 #endif //SUMO_PR_SUMO_H

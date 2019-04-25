@@ -12,6 +12,10 @@ sf::Sprite Ring::getSprite() {
     return sprite;
 }
 
+/*
+    Was used to find out proper ellipses radius.
+    Left in case of Ring texture changing.
+ */
 EllipseShape Ring::getContour() {
     return contour;
 }
@@ -33,7 +37,6 @@ bool Ring::isInside(Sumo *s) {
     EllipseShape scon = s->getContour();
     sf::Vector2f pos;
     sf::Transform tf = scon.getTransform();
-
 
     for (int i =0; i<scon.getPointCount();i++){
         pos = scon.getPoint(i);
