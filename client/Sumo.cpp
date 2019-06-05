@@ -23,7 +23,6 @@ Sumo::Sumo(float x, float y,int angle, sf::Color color) {
     this->angle = angle;
     setDirection(angle/5);
 
-
 	float px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5 + x;
 	float py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5 + y;
 

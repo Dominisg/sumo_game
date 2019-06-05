@@ -3,7 +3,7 @@
 //
 
 #include "Game.h"
-#include "utils/Progressbar.h"
+#include "../utils/Progressbar.h"
 
 Game::Game() {
     sf::ContextSettings settings;

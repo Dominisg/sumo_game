@@ -7,7 +7,7 @@
 
 
 #include <SFML/Graphics.hpp>
-#include "EllipseShape.h"
+#include "../utils/EllipseShape.h"
 #include "Sumo.h"
 
 class Ring {
