@@ -7,6 +7,8 @@
 #include <SFML/Network/UdpSocket.hpp>
 #include "Sumo.h"
 
+
+
 class SocketHandler {
     sf::UdpSocket socket;
     sf::IpAddress host;

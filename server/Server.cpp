@@ -5,12 +5,12 @@
 #include <iostream>
 #include "Server.h"
 
-sf::Packet& operator <<(sf::Packet& packet,  Sumo& sumo)
+sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
 {
     return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle;
 }
 
-sf::Packet& operator >>(sf::Packet& packet, Sumo& sumo)
+sf::Packet& operator >>(sf::Packet& packet, Player_State& sumo)
 {
     return packet >> sumo.velocity_x >> sumo.velocity_y >> sumo.angle;
 }
@@ -20,6 +20,7 @@ Server::Server() {
     {
         // error...
     }
+    socket.setBlocking(false);
     selector.add(socket);
 }
 
@@ -27,7 +28,7 @@ void Server::receive() {
     sf::Packet packet;
     sf::IpAddress sender;
     unsigned short port;
-    Sumo player = {};
+    Player_State player = {};
 
 
     if (selector.wait(sf::seconds(2.0f)))
