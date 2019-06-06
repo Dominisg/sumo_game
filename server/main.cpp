@@ -7,7 +7,7 @@ int main()
 {
     Server server;
     while(true) {
-        server.receive();
+        server.perform();
     }
 
    return 0;

@@ -14,8 +14,9 @@ typedef struct{
 
 struct IP_Endpoint
 {
-    sf::IpAddress host;
+    sf::IpAddress address;
     unsigned short port;
+    bool in_use;
 };
 
 struct Player_Input
@@ -27,14 +28,13 @@ class Server {
     sf::UdpSocket socket;
     sf::SocketSelector selector;
     IP_Endpoint client_endpoints[MAX_CLIENTS];
-    float time_since_heard_from_clients[MAX_CLIENTS];
+    sf::Clock time_since_heard_from_clients[MAX_CLIENTS];
     Player_State client_objects[MAX_CLIENTS];
     Player_Input client_inputs[MAX_CLIENTS];
 public:
     Server();
-    void receive();
-    sf::Socket::Status receiveWithTimeout(sf::TcpSocket& socket, sf::Packet& packet, sf::Time timeout);
-
+    void perform();
+    void sendBack();
 };
 
 
