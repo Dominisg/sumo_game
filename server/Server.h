@@ -5,10 +5,13 @@
 #ifndef SUMO_PR_SERVER_H
 #define SUMO_PR_SERVER_H
 #include <SFML/Network.hpp>
+#include <SFML/Graphics.hpp>
 #include "../common/messages.h"
 
 typedef struct{
+    sf::Sprite sprite;
     float velocity_x,velocity_y;
+    float actual_velocity;
     sf::Int16 angle;
 }Player_State;
 
@@ -35,6 +38,7 @@ public:
     Server();
     void perform();
     void sendBack();
+    void updateState();
 };
 
 
