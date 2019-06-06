@@ -119,7 +119,7 @@ void Menu::join(sf::RenderWindow &window) {
         std::cout<<"Rozpoczynam gre!";
         game.mainLoop(window);
     }else{
-        std::cout<<"Serwer nas nie wpuścił!";
+        std::cout<<"Serwer nas nie wpuscil!";
     }
 
 	state = MENU;
@@ -130,7 +130,61 @@ void Menu::host(sf::RenderWindow &window) {
 	int port = getPort(ip);
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
-	state = MENU;
+	lobby(window);
+	//state = MENU;
+}
+
+void Menu::lobby(sf::RenderWindow &window) {
+	float w = window.getSize().x;
+	float h = window.getSize().y;
+
+	sf::Text title("Sumo Slam", font, 80);
+	title.setStyle(sf::Text::Bold);
+	title.setPosition((w - title.getGlobalBounds().width) / 2, 20);
+
+	sf::Text lobby("Lobby", font, 40);
+	lobby.setStyle(sf::Text::Bold);
+	lobby.setPosition((w - lobby.getGlobalBounds().width) / 2, 240);
+
+
+	sf::Text start("Start!", font, 40);
+	start.setStyle(sf::Text::Bold);
+	start.setPosition((w - start.getGlobalBounds().width) / 2, 600);
+
+	
+	while (window.isOpen()) {
+		sf::Event event;
+		sf::Vector2f mouse(sf::Mouse::getPosition(window));
+
+		while (window.pollEvent(event)) {
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
+			case sf::Event::MouseMoved:
+				if (start.getGlobalBounds().contains(mouse))
+				{
+					start.setFillColor(sf::Color::Cyan);
+				}
+				else start.setFillColor(sf::Color::White);
+				break;
+			case sf::Event::MouseButtonReleased:
+				if (start.getGlobalBounds().contains(mouse))
+				{
+					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
+						std::cout << "Co jest kurwa, liczyles ze wlaczysz gre? xDDD" << std::endl;
+					}
+				}
+				break;
+			}
+		}
+
+		window.clear();
+		window.draw(title);
+		window.draw(lobby);
+		window.draw(start);
+		window.display();
+	}
 }
 
 std::string Menu::getAddress(sf::RenderWindow &window) {

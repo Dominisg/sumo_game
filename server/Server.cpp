@@ -6,7 +6,7 @@
 #include <math.h>
 #include "Server.h"
 #include "../common/messages.h"
-
+#define M_PI 3.1415
 sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
 {
     return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y;

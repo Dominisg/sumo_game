@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif //SUMO_PR_GAME_H
+#endif SUMO_PR_GAME_H

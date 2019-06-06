@@ -24,6 +24,7 @@ private:
 	void menu(sf::RenderWindow &window);
 	void join(sf::RenderWindow &window);
 	void host(sf::RenderWindow &window);
+	void lobby(sf::RenderWindow &window);
 
 	std::string getAddress(sf::RenderWindow &window);
 	std::string getIP(std::string);
