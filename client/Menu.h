@@ -2,6 +2,7 @@
 #include "SFML/Graphics.hpp"
 #include "Game.h"
 #include <iostream>
+#include <string>
 
 #define MAX_ITEMS 3
 class Menu
@@ -23,5 +24,9 @@ private:
 	void menu(sf::RenderWindow &window);
 	void join(sf::RenderWindow &window);
 	void host(sf::RenderWindow &window);
+
+	std::string getAddress(sf::RenderWindow &window);
+	std::string getIP(std::string);
+	int getPort(std::string);
 };
 
