@@ -9,15 +9,15 @@
 #include <SFML/Window.hpp>
 
 class Progressbar {
-    sf::RenderWindow *window;
+    //sf::RenderWindow *window;
     sf::Vector2f position;
     float length;
     float max_val;
     float curr_value=0;
-    void draw();
+    void draw(sf::RenderWindow &w);
 public:
-    Progressbar(sf::RenderWindow *window,sf::Vector2f position_middle,float len, float max_val);
-    void updateProgress(float val);
+    Progressbar(sf::RenderWindow &window,sf::Vector2f position_middle,float len, float max_val);
+    void updateProgress(sf::RenderWindow &w, float val);
 };
 
 

@@ -18,15 +18,15 @@ enum SCREENSIZE{
 
 class Game{
 private:
-    sf::RenderWindow *main_window;
+    //sf::RenderWindow main_window;
     Sumo **players;
     Ring *ring;
     SocketHandler *socket_handler;
     void restartGame();
 public:
-    Game();
+    Game(sf::RenderWindow &w);
     ~Game();
-    void mainLoop();
+    void mainLoop(sf::RenderWindow &w);
 };
 
 
