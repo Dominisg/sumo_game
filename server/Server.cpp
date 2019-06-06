@@ -3,18 +3,19 @@
 //
 
 #include <iostream>
+#include <math.h>
 #include "Server.h"
 #include "../common/messages.h"
 
 sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
 {
-    return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle;
+    return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y;
 }
 
-sf::Packet& operator >>(sf::Packet& packet, Player_State& sumo)
-{
-    return packet >> sumo.velocity_x >> sumo.velocity_y >> sumo.angle;
-}
+//sf::Packet& operator >>(sf::Packet& packet, Player_State& sumo)
+//{
+//    return packet >> sumo.velocity_x >> sumo.velocity_y >> sumo.angle;
+//}
 
 Server::Server() {
     if (socket.bind(2137) != sf::Socket::Done)
@@ -34,7 +35,6 @@ void Server::perform() {
     sf::Uint8 message;
     int result;
 
-    bool is_running;
 
     while(true) {
 
@@ -141,5 +141,54 @@ void Server::sendBack(){
         {
             socket.send(packet_to_send, client_endpoints[i].address, client_endpoints[i].port);
         }
+    }
+}
+
+void Server::updateState(){
+
+    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+    {
+
+        client_objects[i].sprite.move(client_objects[i].velocity_x,client_objects[i].velocity_y);
+        //(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
+        if (client_objects[i].actual_velocity > -0.2 && client_objects[i].actual_velocity < 0.2)
+            client_objects[i].actual_velocity = 0;
+
+        if (client_objects[i].actual_velocity > 0) {
+            client_objects[i].actual_velocity -= FRICTION;
+        }
+        else if (client_objects[i].actual_velocity < 0) {
+            client_objects[i].actual_velocity += FRICTION;
+        }
+
+        bool didMove = client_objects[i].actual_velocity !=0;
+
+        if (client_inputs[i].down) {
+            if (client_objects[i].actual_velocity < MAX_VELOCITY)
+                client_objects[i].actual_velocity += D_VELOCITY;
+            didMove = true;
+        }
+
+        if (client_inputs[i].up) {
+            if (client_objects[i].actual_velocity > -MAX_VELOCITY)
+                client_objects[i].actual_velocity -= D_VELOCITY;
+            didMove = true;
+        }
+
+        if (client_inputs[i].left) {
+            client_objects[i].angle -= ANGLE_ROTATION;
+            client_objects[i].angle += 360;
+            client_objects[i].angle %= 360;
+            didMove = true;
+        }
+
+        if (client_inputs[i].right) {
+            client_objects[i].angle += ANGLE_ROTATION;
+            client_objects[i].angle += 360;
+            client_objects[i].angle %= 360;
+            didMove = true;
+        }
+        client_objects[i].velocity_y = client_objects[i].actual_velocity * cos(((float)client_objects[i].angle / 360.f) * 2 * M_PI);
+        client_objects[i].velocity_x = - client_objects[i].actual_velocity * sin(((float)client_objects[i].angle / 360.f) * 2 * M_PI);
     }
 }

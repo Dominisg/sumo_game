@@ -2,6 +2,7 @@
 // Created by dominis on 08.04.19.
 //
 #include "Game.h"
+#include "../common/messages.h"
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 #include <string>
@@ -61,16 +62,17 @@ void Sumo::update() {
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
 		this->sprite.move(this->velocity);
 		this->contour.move(this->velocity);
+
 		contour.setRotation(angle);
 		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
 		if (actual_velocity > -0.2 && actual_velocity < 0.2)
 			actual_velocity = 0;
 		
 		if (actual_velocity > 0) {
-			actual_velocity -= friction;
+			actual_velocity -= FRICTION;
 		}
 		else if (actual_velocity < 0) {
-			actual_velocity += friction;
+			actual_velocity += FRICTION;
 		}	
 
 		bool didMove = actual_velocity !=0;
@@ -78,31 +80,29 @@ void Sumo::update() {
 		if(!disabled) {
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0])) {
-                if (actual_velocity < max_velocity)
-                    actual_velocity += d_velocity;
+                if (actual_velocity < MAX_VELOCITY)
+                    actual_velocity += D_VELOCITY;
                 didMove = true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1])) {
-                if (actual_velocity > -max_velocity)
-                    actual_velocity -= d_velocity;
+                if (actual_velocity > -MAX_VELOCITY)
+                    actual_velocity -= D_VELOCITY;
                 didMove = true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2])) {
-                angle -= angle_rotation;
+                angle -= ANGLE_ROTATION;
                 angle += 360;
                 angle %= 360;
                 didMove = true;
-                //contour.rotate(-angle_rotation);
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3])) {
-                angle += angle_rotation;
+                angle += ANGLE_ROTATION;
                 angle += 360;
                 angle %= 360;
                 didMove = true;
-                //contour.rotate(angle_rotation);
             }
         }
 

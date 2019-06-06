@@ -42,17 +42,15 @@ void Game::mainLoop() {
     while (main_window->isOpen())
     {
         sf::Event event;
-        while (main_window->pollEvent(event))
-        {
-            switch (event.type)
-            {
+        while (main_window->pollEvent(event)) {
+            switch (event.type) {
                 // main_window closed
                 case sf::Event::Closed:
                     main_window->close();
                     break;
                     // we don't process other types of events
                 case sf::Event::KeyPressed:
-                    if (event.key.code == sf::Keyboard::Escape){
+                    if (event.key.code == sf::Keyboard::Escape) {
                         this->restartGame();
                     }
                     break;
@@ -61,7 +59,6 @@ void Game::mainLoop() {
                     break;
             }
         }
-        socket_handler->send(*players[0]);
 		//players moving
 		//check only once for two players
 		players[0]->checkForCollision(*players[1]);

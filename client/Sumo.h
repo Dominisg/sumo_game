@@ -21,12 +21,12 @@ class Sumo : public sf::Drawable {
 	sf::Clock clock;
 	sf::Clock collision_cooldown;
 
-	float max_velocity = 6.f;
+	//float max_velocity = 6.f;
 	float actual_velocity = 0.f;
-	float d_velocity = 0.25f;	//musi by� wi�ksze ni� ograniczenie (1) w update()
-    sf::Int16 angle_rotation = 5;
+	//float d_velocity = 0.25f;	//musi by� wi�ksze ni� ograniczenie (1) w update()
+    //sf::Int16 angle_rotation = 5;
 	sf::Int16 angle = 0;
-	float friction = 0.04f;
+	//float friction = 0.04f;
 	sf::Vector2f velocity{ 0.f, 0.f };
 	CONTROLS control_setup;
 	static int players_counter;

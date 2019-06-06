@@ -7,6 +7,10 @@
 
 #include <SFML/Config.hpp>
 #define MAX_CLIENTS 4
+constexpr float MAX_VELOCITY = 6.f;
+constexpr float D_VELOCITY = 0.25f;
+constexpr float FRICTION = 0.04f;
+constexpr int ANGLE_ROTATION = 5;
 
 enum class Client_Message : sf::Uint8
 {
