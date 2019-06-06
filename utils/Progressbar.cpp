@@ -15,6 +15,7 @@ Progressbar::Progressbar(sf::RenderWindow &window,sf::Vector2f position_middle,f
 }
 
 void Progressbar::draw(sf::RenderWindow &window) {
+	window.clear();
     sf::Vertex line[] =
         {
                 sf::Vertex(sf::Vector2f(position.x-length, position.y+3)),
