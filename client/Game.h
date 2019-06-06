@@ -28,6 +28,7 @@ public:
     ~Game();
     void mainLoop(sf::RenderWindow &w);
     bool join();
+    void setSocketHandler(SocketHandler *socket_handler);
 };
 
 

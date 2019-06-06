@@ -108,16 +108,128 @@ void Menu::menu(sf::RenderWindow &window) {
 }
 
 void Menu::join(sf::RenderWindow &window) {
-	Game game(window);
-	if(game.join()) {
-	    std::cout<<"Rozpoczynam gre!";
+	std::string ip = getAddress(window);
+	int port = getPort(ip);
+	ip = getIP(ip);
+	std::cout << ip << " " << port << std::endl;
+    Game game(window);
+    game.setSocketHandler(new SocketHandler(sf::IpAddress(ip),port));
+    
+    if(game.join()) {
+        std::cout<<"Rozpoczynam gre!";
         game.mainLoop(window);
     }else{
-	    std::cout<<"Serwer nas nie wpuścił!";
-	}
+        std::cout<<"Serwer nas nie wpuścił!";
+    }
+
+	state = MENU;
 }
 
 void Menu::host(sf::RenderWindow &window) {
-	std::cout << "Hostowanko" << std::endl;
+	std::string ip = getAddress(window);
+	int port = getPort(ip);
+	ip = getIP(ip);
+	std::cout << ip << " " << port << std::endl;
 	state = MENU;
+}
+
+std::string Menu::getAddress(sf::RenderWindow &window) {
+	char port[] = "--------------------";
+	int index = 0;
+	float w = window.getSize().x;
+	float h = window.getSize().y;
+
+	sf::Text title("Sumo Slam", font, 80);
+	title.setStyle(sf::Text::Bold);
+	title.setPosition((w - title.getGlobalBounds().width) / 2, 20);
+
+	sf::Text message("Server Address:", font, 40);
+	message.setStyle(sf::Text::Bold);
+	message.setPosition((w - message.getGlobalBounds().width) / 2, 240);
+
+
+	sf::Text join("Join!", font, 40);
+	join.setStyle(sf::Text::Bold);
+	join.setPosition((w - join.getGlobalBounds().width) / 2, 600);
+
+	sf::Text portTxt[20];
+	for (int i = 0; i < 20; i++) {
+		portTxt[i].setFont(font);
+		portTxt[i].setString(port[i]);
+		portTxt[i].setStyle(sf::Text::Bold);
+		portTxt[i].setPosition((w - portTxt[i].getGlobalBounds().width + 20 * (i-10)) / 2, 300);
+	}
+
+	bool portSet = false;
+
+	while (window.isOpen()) {
+		sf::Event event;
+		sf::Vector2f mouse(sf::Mouse::getPosition(window));
+
+		while (window.pollEvent(event)) {
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
+			case sf::Event::TextEntered:
+				if (index < 20 && (event.text.unicode >= '0' && event.text.unicode <= '9' || event.text.unicode=='.' || event.text.unicode==':')) {
+					port[index++] = char(event.text.unicode);
+					if (index == 20) index--;
+				}
+				else if (index >= 0 && event.text.unicode == 8) { //backspace
+					port[index--] = '-';
+					if (index < 0) index=0;
+
+				}
+				break;
+			case sf::Event::MouseMoved:
+				if (join.getGlobalBounds().contains(mouse))
+				{
+					join.setFillColor(sf::Color::Cyan);
+				}
+				else join.setFillColor(sf::Color::White);
+				break;
+			case sf::Event::MouseButtonReleased:
+				if (join.getGlobalBounds().contains(mouse))
+				{
+					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
+						portSet = true;
+					}
+				}
+				break;
+			}
+		}
+
+		for (int i = 0; i < 20; i++) {
+			portTxt[i].setString(port[i]);
+			portTxt[i].setStyle(sf::Text::Bold);
+			portTxt[i].setFillColor(sf::Color::White);
+		}
+		portTxt[index].setFillColor(sf::Color::Cyan);
+	
+		window.clear();
+		window.draw(title);
+		window.draw(message);
+		for (int i = 0; i < 20; i++) {
+			window.draw(portTxt[i]);
+		}
+		window.draw(join);
+		window.display();
+
+		if (portSet == true) break;
+	}
+	port[index] = '\0';
+	return port;
+}
+
+std::string Menu::getIP(std::string s) {
+	int index = 0;
+	while (s[index] != ':')
+		index++;
+	return s.substr(0,index);
+}
+
+int Menu::getPort(std::string s) {
+	std::string p = s.substr(s.find(':') + 1);
+	return atoi(p.c_str());
 }
