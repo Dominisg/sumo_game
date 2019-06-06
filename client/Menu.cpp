@@ -48,20 +48,17 @@ void Menu::menu(sf::RenderWindow &window) {
 	menu_opts[0].setString("Join game");
 	menu_opts[0].setPosition(sf::Vector2f((w - menu_opts[0].getLocalBounds().width) / 2, h / (MAX_ITEMS + 1)));
 
-	std::cout << "0" << std::endl;
 	menu_opts[1].setFont(font);
 	menu_opts[1].setCharacterSize(48);
 	menu_opts[1].setFillColor(sf::Color::White);
 	menu_opts[1].setString("Host game");
 	menu_opts[1].setPosition(sf::Vector2f((w - menu_opts[1].getLocalBounds().width) / 2, h / (MAX_ITEMS + 1)*2));
-	std::cout << "1" << std::endl;
 
 	menu_opts[2].setFont(font);
 	menu_opts[2].setCharacterSize(48);
 	menu_opts[2].setFillColor(sf::Color::White);
 	menu_opts[2].setString("Exit");
 	menu_opts[2].setPosition(sf::Vector2f((w - menu_opts[2].getLocalBounds().width) / 2, h / (MAX_ITEMS + 1)*3));
-	std::cout << "2" << std::endl;
 
 	while (state == MENU)
 	{
@@ -101,7 +98,6 @@ void Menu::menu(sf::RenderWindow &window) {
 			else menu_opts[i].setFillColor(sf::Color::White);
 
 		window.clear();
-
 		window.draw(title);
 		for (int i = 0; i < MAX_ITEMS; i++)
 			window.draw(menu_opts[i]);
@@ -112,9 +108,6 @@ void Menu::menu(sf::RenderWindow &window) {
 }
 
 void Menu::join(sf::RenderWindow &window) {
-	//window.clear();
-	//window.display();
-	std::cout << "XD" << std::endl;
 	Game game(window);
 	game.mainLoop(window);
 }
