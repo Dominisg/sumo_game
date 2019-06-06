@@ -16,7 +16,7 @@ class SocketHandler {
 
 public:
     SocketHandler(sf::IpAddress host,unsigned short port);
-    void send(Sumo& sumo);
+    void sendInput(sf::Uint8 input);
     void recieve(Sumo** players);
     bool join();
 

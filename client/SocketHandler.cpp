@@ -24,17 +24,30 @@ SocketHandler::SocketHandler(sf::IpAddress host,unsigned short port) {
     this->host = host;
     this->port = port;
     socket.setBlocking(false);
+    slot = 0xFFFF;
 
 }
 
-void SocketHandler::send(Sumo& sumo){
-//    sf::Packet packet;
-//
-//    packet << sumo;
-//    if (socket.send(packet, host, port) != sf::Socket::Done)
-//    {
-//        std::cout<<"Err";
-//    }
+void SocketHandler::sendInput(sf::Uint8 input){
+    sf::Packet packet;
+    if (slot != 0xFFFF)
+    {
+        packet << (sf::Uint8)Client_Message::Input;
+
+        packet << slot;
+
+//        sf::Uint8 input = 	(sf::Uint8)g_input.up |
+//                         ((sf::Uint8)g_input.down << 1) |
+//                         ((sf::Uint8)g_input.left << 2) |
+//                         ((sf::Uint8)g_input.right << 3);
+
+       packet << input;
+        if(socket.send(packet, host, port) != sf::Socket::Done)
+        {
+            std::cout<<("socket_send failed\n");
+        }
+    }
+
 
 }
 

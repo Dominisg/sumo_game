@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include "../utils/EllipseShape.h"
+
 #ifndef SUMO_PR_SUMO_H
 #define SUMO_PR_SUMO_H
 
@@ -60,4 +61,4 @@ public:
 	void wasCollision();
 };
 
-#endif //SUMO_PR_SUMO_H
+#endif//SUMO_PR_SUMO_H

@@ -7,6 +7,8 @@
 
 #include <SFML/Config.hpp>
 #define MAX_CLIENTS 4
+
+
 constexpr float MAX_VELOCITY = 6.f;
 constexpr float D_VELOCITY = 0.25f;
 constexpr float FRICTION = 0.04f;
@@ -26,6 +28,11 @@ enum class Server_Message : sf::Uint8
     State,// tell client game state
     Init, // tell client beginning settings
     End  // tell client that game has ended
+};
+
+struct Player_Input
+{
+    bool up, down, left, right;
 };
 
 #endif //SUMO_PR_MESSAGES_H

@@ -97,6 +97,12 @@ void Server::perform() {
                         client_inputs[slot].left = input & 0x4;
                         client_inputs[slot].right = input & 0x8;
 
+                        std::cout<< "Ruszonko "<<slot<<std::endl;
+                        if(client_inputs[slot].up) std::cout<<"up"<<std::endl;
+                        if(client_inputs[slot].up) std::cout<<"down"<<std::endl;
+                        if(client_inputs[slot].up) std::cout<<"left"<<std::endl;
+                        if(client_inputs[slot].up) std::cout<<"right"<<std::endl;
+
                         time_since_heard_from_clients[slot].restart();
                     }
                 }
@@ -107,10 +113,7 @@ void Server::perform() {
                 }
                     break;
             }
-            //Here state update
-
-
-
+            updateState();
         }
     }
     sendBack();

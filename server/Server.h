@@ -22,11 +22,6 @@ struct IP_Endpoint
     bool in_use;
 };
 
-struct Player_Input
-{
-    bool up, down, left, right;
-};
-
 class Server {
     sf::UdpSocket socket;
     sf::SocketSelector selector;

@@ -60,6 +60,7 @@ void Sumo::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 
 void Sumo::update() {
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
+	    Player_Input input = {};
 		this->sprite.move(this->velocity);
 		this->contour.move(this->velocity);
 
@@ -83,12 +84,14 @@ void Sumo::update() {
                 if (actual_velocity < MAX_VELOCITY)
                     actual_velocity += D_VELOCITY;
                 didMove = true;
+                input.down=true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1])) {
                 if (actual_velocity > -MAX_VELOCITY)
                     actual_velocity -= D_VELOCITY;
                 didMove = true;
+                input.up=true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2])) {
@@ -96,6 +99,7 @@ void Sumo::update() {
                 angle += 360;
                 angle %= 360;
                 didMove = true;
+                input.left=true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3])) {
@@ -103,8 +107,10 @@ void Sumo::update() {
                 angle += 360;
                 angle %= 360;
                 didMove = true;
+                input.right = true;
             }
         }
+
 
 		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
 		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
