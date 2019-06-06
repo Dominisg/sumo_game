@@ -147,7 +147,7 @@ sf::Vector2f Sumo::getVelocity() {
 int Sumo::getAngle() {
 	return angle;
 }
-void Sumo::setAngle(int a) {
+void Sumo::setAngle(sf::Int16 a) {
 	angle = a;
 }
 int Sumo::getPlayersCounter() {

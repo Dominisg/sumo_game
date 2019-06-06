@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include "Sumo.h"
 #include "Ring.h"
+#include "SocketHandler.h"
 
 #define LOCAL_PLAYERS_MAX 2
 
@@ -20,6 +21,7 @@ private:
     sf::RenderWindow *main_window;
     Sumo **players;
     Ring *ring;
+    SocketHandler *socket_handler;
     void restartGame();
 public:
     Game();

@@ -2,6 +2,7 @@
 // Created by dominis on 08.04.19.
 //
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include "../utils/EllipseShape.h"
 #ifndef SUMO_PR_SUMO_H
 #define SUMO_PR_SUMO_H
@@ -23,8 +24,8 @@ class Sumo : public sf::Drawable {
 	float max_velocity = 6.f;
 	float actual_velocity = 0.f;
 	float d_velocity = 0.25f;	//musi by� wi�ksze ni� ograniczenie (1) w update()
-	int angle_rotation = 5;
-	int angle = 0;
+    sf::Int16 angle_rotation = 5;
+	sf::Int16 angle = 0;
 	float friction = 0.04f;
 	sf::Vector2f velocity{ 0.f, 0.f };
 	CONTROLS control_setup;
@@ -47,7 +48,7 @@ public:
 	float getActualVelocity();
 	sf::Vector2f getVelocity();
 	int getAngle();
-	void setAngle(int);
+	void setAngle(sf::Int16);
 	void setActualVelocity(float);
 	void setVelocity(sf::Vector2f);
 	static int getPlayersCounter();

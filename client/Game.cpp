@@ -24,6 +24,8 @@ Game::Game() {
 	players = new Sumo*[LOCAL_PLAYERS_MAX];
 	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
     players[1] = new Sumo(40, -100, 60, sf::Color::Red);
+
+    socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),2137);
 }
 
 Game::~Game() {
@@ -59,6 +61,7 @@ void Game::mainLoop() {
                     break;
             }
         }
+        socket_handler->send(*players[0]);
 		//players moving
 		//check only once for two players
 		players[0]->checkForCollision(*players[1]);
