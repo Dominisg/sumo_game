@@ -27,6 +27,7 @@ public:
     Game(sf::RenderWindow &w);
     ~Game();
     void mainLoop(sf::RenderWindow &w);
+    bool join();
 };
 
 

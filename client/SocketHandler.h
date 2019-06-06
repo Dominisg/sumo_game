@@ -8,14 +8,17 @@
 #include "Sumo.h"
 
 
-
 class SocketHandler {
     sf::UdpSocket socket;
     sf::IpAddress host;
     unsigned short port;
+    sf::Int16 slot;
+
 public:
     SocketHandler(sf::IpAddress host,unsigned short port);
     void send(Sumo& sumo);
+    void recieve(Sumo** players);
+    bool join();
 
 };
 

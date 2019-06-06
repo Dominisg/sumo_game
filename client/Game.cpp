@@ -23,7 +23,7 @@ Game::Game(sf::RenderWindow &main_window) {
 	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
     players[1] = new Sumo(40, -100, 60, sf::Color::Red);
 
-    socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),2137);
+    socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),5600);
 }
 
 Game::~Game() {
@@ -100,4 +100,8 @@ void Game::restartGame() {
     players = new Sumo*[LOCAL_PLAYERS_MAX];
     players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
     players[1] = new Sumo(40, -100, 60, sf::Color::Red);
+}
+
+bool Game::join() {
+    return socket_handler->join();
 }

@@ -67,19 +67,19 @@ void Menu::menu(sf::RenderWindow &window) {
 
 		while (window.pollEvent(event))
 		{
-			//Wciœniêcie ESC lub przycisk X
-			if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed &&
-				event.key.code == sf::Keyboard::Escape)
+			//Wciï¿½niï¿½cie ESC lub przycisk X
+			if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed &&
+				event.key.code == sf::Keyboard::Escape))
 				state = END;
 
-			//klikniêcie MENU                                        
+			//klikniï¿½cie MENU                                        
 			else if (menu_opts[0].getGlobalBounds().contains(mouse) &&
 				event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left)
 			{
 				state = JOIN;
 			}
 
-			//klikniêcie EXIT
+			//klikniï¿½cie EXIT
 			else if (menu_opts[1].getGlobalBounds().contains(mouse) &&
 				event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left)
 			{
@@ -109,7 +109,12 @@ void Menu::menu(sf::RenderWindow &window) {
 
 void Menu::join(sf::RenderWindow &window) {
 	Game game(window);
-	game.mainLoop(window);
+	if(game.join()) {
+	    std::cout<<"Rozpoczynam gre!";
+        game.mainLoop(window);
+    }else{
+	    std::cout<<"Serwer nas nie wpuÅ›ciÅ‚!";
+	}
 }
 
 void Menu::host(sf::RenderWindow &window) {

@@ -34,6 +34,7 @@ class Server {
     sf::Clock time_since_heard_from_clients[MAX_CLIENTS];
     Player_State client_objects[MAX_CLIENTS];
     Player_Input client_inputs[MAX_CLIENTS];
+    bool started = false;
 public:
     Server();
     void perform();
