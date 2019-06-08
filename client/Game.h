@@ -10,12 +10,6 @@
 #include "SocketHandler.h"
 
 #define LOCAL_PLAYERS_MAX 2
-
-enum SCREENSIZE{
-    X = 1280,
-    Y = 800
-};
-
 class Game{
 private:
     //sf::RenderWindow main_window;
@@ -30,6 +24,7 @@ public:
     bool join();
     void setSocketHandler(SocketHandler *socket_handler);
     SocketHandler* getSocketHandler();
+    bool checkForCollision(Sumo& other);
 };
 
 

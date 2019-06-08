@@ -3,13 +3,16 @@
 //
 
 #include <iostream>
-#include <math.h>
 #include "Server.h"
 #include "../common/messages.h"
-#define M_PI 3.1415
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+
 sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
 {
-    return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y <<sumo.didMove;
+    return packet << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y <<sumo.didMove;
 }
 
 Server::Server() {
@@ -19,12 +22,6 @@ Server::Server() {
     }
     socket.setBlocking(false);
     selector.add(socket);
-    client_objects[0].sprite.setPosition(180,-180);
-    client_objects[0].angle=220;
-
-    client_objects[1].sprite.setPosition(40,-100);
-    client_objects[1].angle=60;
-
 }
 
 void Server::perform() {
@@ -44,7 +41,6 @@ void Server::perform() {
                 break;
             }
         } else {
-            //std::cout<<result;
             packet_received >> message;
 
             switch ((Client_Message) message) {
@@ -68,8 +64,11 @@ void Server::perform() {
                         if (socket.send(packet_to_send, sender, port) == sf::Socket::Done) {
                             client_endpoints[slot].address = sender;
                             client_endpoints[slot].port = port;
+                            client_endpoints[slot].in_use = true;
                             time_since_heard_from_clients[slot].restart();
                             client_objects[slot] = {};
+                            client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,DEFAULT_POSITIONS[slot].y);
+                            client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
                             client_inputs[slot] = {};
                         }
                     } else {
@@ -103,11 +102,11 @@ void Server::perform() {
                         client_inputs[slot].left = input & 0x4;
                         client_inputs[slot].right = input & 0x8;
 
-//                        std::cout<< "Ruszonko "<<slot<<std::endl;
-//                        if(client_inputs[slot].up) std::cout<<"up"<<std::endl;
-//                        if(client_inputs[slot].down) std::cout<<"down"<<std::endl;
-//                        if(client_inputs[slot].left) std::cout<<"left"<<std::endl;
-//                        if(client_inputs[slot].right) std::cout<<"right"<<std::endl;
+                        //std::cout<< "Ruszonko "<<slot<<std::endl;
+                        //if(client_inputs[slot].up) std::cout<<"up"<<std::endl;
+                        //if(client_inputs[slot].down) std::cout<<"down"<<std::endl;
+                        //if(client_inputs[slot].left) std::cout<<"left"<<std::endl;
+                        //if(client_inputs[slot].right) std::cout<<"right"<<std::endl;
 
                         time_since_heard_from_clients[slot].restart();
                     }
@@ -153,7 +152,11 @@ void Server::updateState(){
     for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i ) {
         if (client_endpoints[i].in_use) {
 
+            for (sf::Uint16 j=i; j< MAX_CLIENTS; ++j)
+                client_objects[i].checkForCollision(client_objects[j]);
+
             client_objects[i].sprite.move(client_objects[i].velocity_x, client_objects[i].velocity_y);
+
 
             //(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
             if (client_objects[i].actual_velocity > -0.2 && client_objects[i].actual_velocity < 0.2)
@@ -201,4 +204,58 @@ void Server::updateState(){
         sendBack();
         clock.restart();
     }
+}
+
+bool isInterescting(Player_State &a, Player_State &b) {
+    //ellipse is estimated with cirlce
+
+    if(a.collision_cooldown.getElapsedTime().asSeconds()<0.3 && b.collision_cooldown.getElapsedTime().asSeconds()<0.3)
+        return false;
+    float x = a.sprite.getPosition().x - b.sprite.getPosition().x;
+    float y = a.sprite.getPosition().y - b.sprite.getPosition().y;
+    float dist = x * x + y * y;
+    float radius = 32;
+    return dist <= (radius + radius )*(radius + radius);
+
+}
+void collide(Player_State &a, Player_State &b) {
+
+
+    float av = abs(a.actual_velocity);
+    float bv = abs(b.actual_velocity);
+
+    a.collision_cooldown.restart();
+    b.collision_cooldown.restart();
+
+    float tmp = a.actual_velocity;
+    a.actual_velocity = b.actual_velocity;
+    b.actual_velocity = tmp;
+
+    float tmp_x = a.velocity_x;
+    float tmp_y = b.velocity_y;
+    a.velocity_x = b.velocity_x;
+    a.velocity_y = b.velocity_y;
+    b.velocity_x = tmp_x;
+    b.velocity_x = tmp_y;
+
+    //slower sumo gets rotation of faster
+    if (av > bv) {
+        b.angle = a.angle;
+    }
+    else if (av == bv) {
+        sf::Int16 t = a.angle;
+        a.angle = b.angle;
+        b.angle = t;
+    }
+    else {
+        a.angle = b.angle;
+    }
+}
+
+bool Player_State::checkForCollision(Player_State &other) {
+    if (!isInterescting(*this, other)) return false;
+    collide(*this, other);
+
+    return true;
+
 }

@@ -6,8 +6,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 #include <string>
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
         {sf::Keyboard::Down,sf::Keyboard::Up,sf::Keyboard::Left,sf::Keyboard::Right},
@@ -58,7 +56,6 @@ EllipseShape& Sumo::getContour() {
 
 void Sumo::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	target.draw(this->sprite, state);
-	//target.draw(this->contour, state);
 }
 
 
@@ -96,25 +93,8 @@ void Sumo::sendInput(){
 void Sumo::update() {
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
 	    Player_Input input = {};
-//		this->sprite.move(0,0);
-//		this->contour.move(0,0);
-//
-		contour.setRotation(angle);
-//		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
-//		if (actual_velocity > -0.2 && actual_velocity < 0.2)
-//			actual_velocity = 0;
-//
-//		if (actual_velocity > 0) {
-//			actual_velocity -= FRICTION;
-//		}
-//		else if (actual_velocity < 0) {
-//			actual_velocity += FRICTION;
-//		}
-//
-//		bool didMove = actual_velocity !=0;
 
-//		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
-//		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
+		contour.setRotation(angle);
 
 		setDirection(angle / 5);
 
@@ -139,21 +119,6 @@ void Sumo::update() {
 void Sumo::setDirection(int dir) {
 	this->sprite.setTexture(texture[dir]);
 }
-float Sumo::getActualVelocity() {
-	return actual_velocity;
-}
-void Sumo::setActualVelocity(float v) {
-	actual_velocity = v;
-}
-void Sumo::setVelocity(sf::Vector2f v) {
-	velocity = v;
-}
-sf::Vector2f Sumo::getVelocity() {
-	return velocity;
-}
-int Sumo::getAngle() {
-	return angle;
-}
 void Sumo::setAngle(sf::Int16 a) {
 	angle = a;
 }
@@ -167,76 +132,12 @@ void Sumo::setTextures(sf::Texture *t) {
     texture = t;
 }
 
-bool isInterescting(Sumo &a, Sumo &b) {
-	//ellipse is estimated with cirlce
-
-	if(a.elapsedTimeCollision().asSeconds()<0.3 && b.elapsedTimeCollision().asSeconds()<0.3)
-	    return false;
-	float x = a.getContour().getPosition().x - b.getContour().getPosition().x;
-	float y = a.getContour().getPosition().y - b.getContour().getPosition().y;
-	float dist = x * x + y * y;
-	float radius = a.getContour().getRadius().y;
-	return dist <= (radius + radius )*(radius + radius);
-
-}
-sf::Vector2f collide(Sumo &a, Sumo &b) {
-
-
-	float av = abs(a.getActualVelocity());
-	float bv = abs(b.getActualVelocity());
-
-    a.wasCollision();
-    b.wasCollision();
-
-	float tmp = a.getActualVelocity();
-	a.setActualVelocity(b.getActualVelocity());
-	b.setActualVelocity(tmp);
-
-	sf::Vector2f tmp2 = a.getVelocity();
-	a.setVelocity(b.getVelocity());
-	b.setVelocity(tmp2);
-
-	//slower sumo gets rotation of faster
-	if (av > bv) {
-		b.setAngle(a.getAngle());
-	}
-	else if (av == bv) {
-		int t = a.getAngle();
-		a.setAngle(b.getAngle());
-		b.setAngle(t);
-	}
-	else {
-		a.setAngle(b.getAngle());
-	}
-
-	return { 0.f, 0.f };
-
-}
-
-bool Sumo::checkForCollision(Sumo &other) {
-	if (!isInterescting(*this, other)) return false;
-
-	//problem jest w collide!!!
-	//postaci się blokują
-	collide(*this, other);
-
-	return true;
-	
-}
-
-void Sumo::disable() {
-    disabled = true;
+void Sumo::disable(bool t) {
+    disabled = t;
 }
 
 bool Sumo::isDisabled() {
     return disabled;
-}
-
-sf::Time Sumo::elapsedTimeCollision() {
-    return collision_cooldown.getElapsedTime();
-}
-void Sumo::wasCollision() {
-    collision_cooldown.restart();
 }
 
 void Sumo::setSumoDidMove(bool val) {

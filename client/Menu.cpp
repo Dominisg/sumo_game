@@ -116,7 +116,7 @@ void Menu::join(sf::RenderWindow &window) {
     game.setSocketHandler(new SocketHandler(sf::IpAddress(ip),port));
     
     if(game.join()) {
-        std::cout<<"Rozpoczynam gre!";
+        std::cout<<"Rozpoczynam gre!"<<std::endl;
         game.mainLoop(window);
     }else{
         std::cout<<"Serwer nas nie wpuscil!";

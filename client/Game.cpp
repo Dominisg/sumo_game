@@ -19,8 +19,8 @@ Game::Game(sf::RenderWindow &main_window) {
 
     ring= new Ring("spritesheets/ring.png");
 
-	players = new Sumo*[LOCAL_PLAYERS_MAX];
-	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue,this);
+	players = new Sumo*[MAX_CLIENTS];
+	players[0] = new Sumo(180.f, -180.0f, 230, sf::Color::Blue,this);
     players[1] = new Sumo(40, -100, 60, sf::Color::Red,this);
 
  //   socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),5600);
@@ -82,15 +82,11 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
 
 		//drawing players
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-			main_window.draw(*players[i]);
+            if(!players[i]->isDisabled())
+			    main_window.draw(*players[i]);
 		}
 
-//        //disabling players outside the ring
-//        for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-//            if (!ring->isInside(players[i])) {
-//                players[i]->disable();
-//            }
-//        }
+
         main_window.display();
     }
 }
@@ -115,7 +111,7 @@ void Game::setSocketHandler(SocketHandler *socket_handler) {
     this->socket_handler = socket_handler;
 }
 
-
 SocketHandler* Game::getSocketHandler(){
     return this->socket_handler;
 }
+

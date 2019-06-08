@@ -7,16 +7,16 @@
 
 sf::Packet& operator >>(sf::Packet& packet, Sumo& sumo)
 {
-    float vx,vy,x,y;
+    float x,y;
     sf::Int16 angle;
     bool didMove;
 
-    packet >> vx >> vy >> angle >>x>>y>>didMove;
+    packet >> angle >> x >> y >>didMove;
     sumo.setAngle(angle);
-    //sumo.setVelocity(sf::Vector2f(vx,vy));
     sumo.getSprite().setPosition(x,y);
     sumo.getContour().setPosition(x,y+25);
     sumo.setSumoDidMove(didMove);
+    sumo.disable(false);
     return packet;
 }
 
@@ -104,13 +104,13 @@ void SocketHandler::recieve(Sumo **players) {
         {
             case Server_Message::State:
             {
-                //while(!packet.endOfPacket()) {
+                for (sf::Uint8 i=0;i<MAX_CLIENTS;i++) {
+                    players[i]->disable(true);
+                }
+                while(!packet.endOfPacket()) {
                     packet >> idx;
                     packet >> *players[idx];
-
-                   // packet >> idx;
-                   // packet >> *players[idx];
-                //}
+                }
             }
                 break;
             default:

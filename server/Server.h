@@ -8,14 +8,20 @@
 #include <SFML/Graphics.hpp>
 #include "../common/messages.h"
 
-typedef struct{
+
+
+typedef struct Player_State Player_State;
+
+ struct Player_State{
     sf::Sprite sprite;
     float velocity_x,velocity_y;
     float actual_velocity;
     sf::Int16 angle;
     bool didMove;
+    sf::Clock collision_cooldown;
+    bool checkForCollision(Player_State &other);
+};
 
-}Player_State;
 
 struct IP_Endpoint
 {
@@ -39,7 +45,5 @@ public:
     void sendBack();
     void updateState();
 };
-
-
 
 #endif //SUMO_PR_SERVER_H

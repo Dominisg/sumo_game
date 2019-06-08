@@ -21,16 +21,8 @@ class Sumo : public sf::Drawable {
 	sf::IntRect rectSprite;
 	EllipseShape contour;
 	sf::Clock clock;
-    sf::Clock input_clock;
-	sf::Clock collision_cooldown;
 
-	//float max_velocity = 6.f;
-	float actual_velocity = 0.f;
-	//float d_velocity = 0.25f;	//musi by� wi�ksze ni� ograniczenie (1) w update()
-    //sf::Int16 angle_rotation = 5;
 	sf::Int16 angle = 0;
-	//float friction = 0.04f;
-	sf::Vector2f velocity{ 0.f, 0.f };
 	CONTROLS control_setup;
 	static int players_counter;
 	bool disabled;
@@ -49,20 +41,12 @@ public:
 
 	void update();
 	void setDirection(int angle);
-	bool checkForCollision(Sumo& other);
-	float getActualVelocity();
-	sf::Vector2f getVelocity();
-	int getAngle();
 	void setAngle(sf::Int16);
-	void setActualVelocity(float);
-	void setVelocity(sf::Vector2f);
 	static int getPlayersCounter();
 	static sf::Texture* getTextures();
 	static void setTextures(sf::Texture* t);
-	void disable();
+	void disable(bool);
 	bool isDisabled();
-	sf::Time elapsedTimeCollision();
-	void wasCollision();
     void setSumoDidMove(bool);
     void sendInput();
 };
