@@ -112,11 +112,14 @@ void Menu::join(sf::RenderWindow &window) {
 	int port = getPort(ip);
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
-    Game game(window);
-    game.setSocketHandler(new SocketHandler(sf::IpAddress(ip),port));
+    Game game(new SocketHandler(sf::IpAddress(ip),port));
     
     if(game.join()) {
-        std::cout<<"Rozpoczynam gre!"<<std::endl;
+        std::cout<<"Wchodze do lobby!"<<std::endl;
+		game.getSocketHandler()->sendStart();
+		while(game.getSocketHandler()->listenLobby());
+		game.init(window);
+		game.getSocketHandler()->sendReady();
         game.mainLoop(window);
     }else{
         std::cout<<"Serwer nas nie wpuscil!";
@@ -130,11 +133,13 @@ void Menu::host(sf::RenderWindow &window) {
 	int port = getPort(ip);
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
-	lobby(window);
+    Game game(new SocketHandler(sf::IpAddress(ip),port));
+	lobby(window,game);
+
 	//state = MENU;
 }
 
-void Menu::lobby(sf::RenderWindow &window) {
+void Menu::lobby(sf::RenderWindow &window, Game& game) {
 	float w = window.getSize().x;
 	float h = window.getSize().y;
 
@@ -172,12 +177,21 @@ void Menu::lobby(sf::RenderWindow &window) {
 				if (start.getGlobalBounds().contains(mouse))
 				{
 					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
-						std::cout << "Co jest kurwa, liczyles ze wlaczysz gre? xDDD" << std::endl;
+                        //TODO: Uruchamioanko serwera jako wątek ;) Wyczekana kompilacja warunkowa, xD
+                        game.getSocketHandler()->sendStart();
 					}
 				}
 				break;
 			}
-		}
+
+            if(!game.getSocketHandler()->listenLobby()){
+                game.init(window);
+                game.getSocketHandler()->sendReady();
+                game.mainLoop(window);
+            }
+
+
+        }
 
 		window.clear();
 		window.draw(title);

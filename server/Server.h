@@ -13,13 +13,14 @@
 typedef struct Player_State Player_State;
 
  struct Player_State{
-    sf::Sprite sprite;
-    float velocity_x,velocity_y;
-    float actual_velocity;
-    sf::Int16 angle;
-    bool didMove;
-    sf::Clock collision_cooldown;
-    bool checkForCollision(Player_State &other);
+     sf::Sprite sprite;
+     float velocity_x,velocity_y;
+     float actual_velocity;
+     sf::Int16 angle;
+     bool didMove;
+     sf::Clock collision_cooldown;
+     bool ready;
+     bool checkForCollision(Player_State &other);
 };
 
 

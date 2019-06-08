@@ -18,6 +18,9 @@ class SocketHandler {
 public:
     SocketHandler(sf::IpAddress host,unsigned short port);
     void sendInput(Player_Input g_input);
+    void sendStart();
+    void sendReady();
+    int listenLobby();
     void recieve(Sumo** players);
     bool join();
     sf::Int16 getPlayerId();

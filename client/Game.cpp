@@ -4,7 +4,11 @@
 #include "Game.h"
 #include "../utils/Progressbar.h"
 
-Game::Game(sf::RenderWindow &main_window) {
+Game::Game(SocketHandler *socket_handler) {
+    this->socket_handler = socket_handler;
+}
+
+void Game::init(sf::RenderWindow &main_window){
     Progressbar p_bar(main_window,sf::Vector2f(SCREENSIZE::X/2,SCREENSIZE::Y/2),200.,72.);
     auto *tmptexture = new sf::Texture[72];
 
@@ -17,9 +21,9 @@ Game::Game(sf::RenderWindow &main_window) {
 
     ring= new Ring("spritesheets/ring.png");
 
-	players = new Sumo*[MAX_CLIENTS];
+    players = new Sumo*[MAX_CLIENTS];
     for(int i=0; i<MAX_CLIENTS; i++)
-	    players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
+        players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
                               DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color,this);
 }
 
@@ -47,9 +51,9 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
                     break;
                     // we don't process other types of events
                 case sf::Event::KeyPressed:
-                    if (event.key.code == sf::Keyboard::Escape) {
-                        this->restartGame();
-                    }
+//                    if (event.key.code == sf::Keyboard::Escape) {
+//                        this->restartGame();
+//                    }
                     break;
 
                 default:
@@ -96,11 +100,6 @@ void Game::restartGame() {
 
 bool Game::join() {
     return socket_handler->join();
-}
-
-void Game::setSocketHandler(SocketHandler *socket_handler) {
-
-    this->socket_handler = socket_handler;
 }
 
 SocketHandler* Game::getSocketHandler(){

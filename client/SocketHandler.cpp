@@ -89,6 +89,23 @@ bool SocketHandler::join(){
 return false;
 }
 
+void SocketHandler::sendStart() {
+    sf::Packet packet;
+    std::cout<<"START"<<std::endl;
+    packet << (sf::Uint8) Client_Message::Start;
+    packet << slot;
+    if (socket.send(packet, host, port) != sf::Socket::Done)
+        std::cout<<"Error while starting."<<std::endl;
+}
+
+void SocketHandler::sendReady() {
+    sf::Packet packet;
+    packet << (sf::Uint8) Client_Message::Ready;
+    packet << slot;
+    if (socket.send(packet, host, port) != sf::Socket::Done)
+        std::cout<<"Error while saying that i;m ready."<<std::endl;
+}
+
 void SocketHandler::recieve(Sumo **players) {
     sf::Packet packet;
     sf::Uint8 message = -1;
@@ -117,6 +134,30 @@ void SocketHandler::recieve(Sumo **players) {
                 break;
         }
     }
+}
+
+//zrwaca 0, gdy należy zacząć rozgrywkę.
+int SocketHandler::listenLobby() {
+    sf::Packet packet;
+    sf::Uint8 message = -1;
+    sf::SocketSelector selector;
+
+    selector.add(socket);
+    if (selector.wait(sf::microseconds(100)))
+    {
+        socket.receive(packet,host,port);
+        packet>>message;
+        switch ((Server_Message)message)
+        {
+            case Server_Message::Init:
+            {
+                return 0;
+            }
+            default:
+                break;
+        }
+    }
+    return 1;
 }
 
 sf::Int16 SocketHandler::getPlayerId() {

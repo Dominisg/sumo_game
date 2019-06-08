@@ -18,13 +18,13 @@ private:
     SocketHandler *socket_handler;
     void restartGame();
 public:
-    Game(sf::RenderWindow &w);
+    Game(SocketHandler*);
+    void init(sf::RenderWindow &main_window);
     ~Game();
     void mainLoop(sf::RenderWindow &w);
     bool join();
-    void setSocketHandler(SocketHandler *socket_handler);
+   // void setSocketHandler(SocketHandler *socket_handler);
     SocketHandler* getSocketHandler();
-    bool checkForCollision(Sumo& other);
 };
 
 

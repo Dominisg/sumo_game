@@ -113,11 +113,72 @@ void Server::perform() {
                     break;
 
                 case Client_Message::Start: {
-                    started = 1;
+                    sf::Int16 slot;
+                    packet_received >> slot;
+                    std::cout<<"Wciśniety START"<<std::endl;
+                    if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port) {
+                        packet_to_send << (sf::Uint8) Server_Message::Init;
+                        for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+                        {
+                            if( client_endpoints[i].in_use )
+                            {
+                                socket.send(packet_to_send, client_endpoints[i].address, client_endpoints[i].port);
+                            }
+                        }
+                    }
                 }
                     break;
+
+                case Client_Message::Ready:{
+
+                    sf::Int16 slot;
+                    packet_received >> slot;
+
+                    if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port) {
+                        time_since_heard_from_clients[slot].restart();
+                        client_objects[slot].ready = true;
+                        for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+                        {
+                            if( client_endpoints[i].in_use )
+                            {
+                                if(!client_objects[i].ready)
+                                    break;
+                            }
+                        }
+                        started = true;
+
+                    }
+
+                }
+                break;
             }
-            updateState();
+//TODO: Do przemyslenia - w trakcie bycia w lobby nie wysyłamy komunikatów, wiec by nas wyjebało \
+            ale trzeba jakoś przekminić jak zaczac rozgrywke bez bracza który wyszedł z lobby.
+//            for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+//            {
+//
+//                if( client_endpoints[i].in_use )
+//                {
+//                    if(time_since_heard_from_clients[i].getElapsedTime()>sf::seconds(10.0)){
+//                        client_endpoints[i]={};
+//                        if(!started){
+//                            for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+//                            {
+//                                if( client_endpoints[i].in_use )
+//                                {
+//                                    if(!client_objects[i].ready)
+//                                        break;
+//                                }
+//                            }
+//                            started = true;
+//                        }
+//                    }
+//                }
+//            }
+
+
+            if(started)
+                updateState();
         }
     }
 }
