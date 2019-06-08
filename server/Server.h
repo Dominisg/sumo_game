@@ -13,6 +13,8 @@ typedef struct{
     float velocity_x,velocity_y;
     float actual_velocity;
     sf::Int16 angle;
+    bool didMove;
+
 }Player_State;
 
 struct IP_Endpoint
@@ -28,8 +30,9 @@ class Server {
     IP_Endpoint client_endpoints[MAX_CLIENTS];
     sf::Clock time_since_heard_from_clients[MAX_CLIENTS];
     Player_State client_objects[MAX_CLIENTS];
-    Player_Input client_inputs[MAX_CLIENTS];
+    Player_Input client_inputs[MAX_CLIENTS]={};
     bool started = false;
+    sf::Clock clock;
 public:
     Server();
     void perform();

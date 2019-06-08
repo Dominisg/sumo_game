@@ -9,7 +9,7 @@
 #define M_PI 3.1415
 sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
 {
-    return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y;
+    return packet << sumo.velocity_x << sumo.velocity_y << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y <<sumo.didMove;
 }
 
 Server::Server() {
@@ -19,6 +19,12 @@ Server::Server() {
     }
     socket.setBlocking(false);
     selector.add(socket);
+    client_objects[0].sprite.setPosition(180,-180);
+    client_objects[0].angle=220;
+
+    client_objects[1].sprite.setPosition(40,-100);
+    client_objects[1].angle=60;
+
 }
 
 void Server::perform() {
@@ -38,7 +44,7 @@ void Server::perform() {
                 break;
             }
         } else {
-            std::cout<<result;
+            //std::cout<<result;
             packet_received >> message;
 
             switch ((Client_Message) message) {
@@ -97,11 +103,11 @@ void Server::perform() {
                         client_inputs[slot].left = input & 0x4;
                         client_inputs[slot].right = input & 0x8;
 
-                        std::cout<< "Ruszonko "<<slot<<std::endl;
-                        if(client_inputs[slot].up) std::cout<<"up"<<std::endl;
-                        if(client_inputs[slot].up) std::cout<<"down"<<std::endl;
-                        if(client_inputs[slot].up) std::cout<<"left"<<std::endl;
-                        if(client_inputs[slot].up) std::cout<<"right"<<std::endl;
+//                        std::cout<< "Ruszonko "<<slot<<std::endl;
+//                        if(client_inputs[slot].up) std::cout<<"up"<<std::endl;
+//                        if(client_inputs[slot].down) std::cout<<"down"<<std::endl;
+//                        if(client_inputs[slot].left) std::cout<<"left"<<std::endl;
+//                        if(client_inputs[slot].right) std::cout<<"right"<<std::endl;
 
                         time_since_heard_from_clients[slot].restart();
                     }
@@ -116,18 +122,17 @@ void Server::perform() {
             updateState();
         }
     }
-    sendBack();
 }
 
 void Server::sendBack(){
     sf::Packet packet_to_send;
     packet_to_send << (sf::Int8)Server_Message::State;
 
-    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
+    for( sf::Uint8 i = 0; i < MAX_CLIENTS; ++i )
     {
         if( client_endpoints[i].in_use )
         {
-            packet_to_send<<(sf::Uint8)i;
+            packet_to_send<<i;
             packet_to_send<<client_objects[i];
         }
     }
@@ -143,11 +148,13 @@ void Server::sendBack(){
 
 void Server::updateState(){
 
-    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-    {
-        if( client_endpoints[i].in_use ) {
+    if (clock.getElapsedTime().asSeconds() > 0.022f){
+
+    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i ) {
+        if (client_endpoints[i].in_use) {
 
             client_objects[i].sprite.move(client_objects[i].velocity_x, client_objects[i].velocity_y);
+
             //(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
             if (client_objects[i].actual_velocity > -0.2 && client_objects[i].actual_velocity < 0.2)
                 client_objects[i].actual_velocity = 0;
@@ -158,37 +165,40 @@ void Server::updateState(){
                 client_objects[i].actual_velocity += FRICTION;
             }
 
-            bool didMove = client_objects[i].actual_velocity != 0;
+            client_objects[i].didMove = client_objects[i].actual_velocity != 0;
 
             if (client_inputs[i].down) {
                 if (client_objects[i].actual_velocity < MAX_VELOCITY)
                     client_objects[i].actual_velocity += D_VELOCITY;
-                didMove = true;
+                client_objects[i].didMove = true;
             }
 
             if (client_inputs[i].up) {
                 if (client_objects[i].actual_velocity > -MAX_VELOCITY)
                     client_objects[i].actual_velocity -= D_VELOCITY;
-                didMove = true;
+                client_objects[i].didMove = true;
             }
 
             if (client_inputs[i].left) {
                 client_objects[i].angle -= ANGLE_ROTATION;
                 client_objects[i].angle += 360;
                 client_objects[i].angle %= 360;
-                didMove = true;
+                client_objects[i].didMove = true;
             }
 
             if (client_inputs[i].right) {
                 client_objects[i].angle += ANGLE_ROTATION;
                 client_objects[i].angle += 360;
                 client_objects[i].angle %= 360;
-                didMove = true;
+                client_objects[i].didMove = true;
             }
             client_objects[i].velocity_y =
                     client_objects[i].actual_velocity * cos(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
             client_objects[i].velocity_x =
                     -client_objects[i].actual_velocity * sin(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
         }
+    }
+        sendBack();
+        clock.restart();
     }
 }

@@ -17,7 +17,7 @@ sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
 int Sumo::players_counter = 0;
 sf::Texture* Sumo::texture = nullptr;
 
-Sumo::Sumo(float x, float y,int angle, sf::Color color) {
+Sumo::Sumo(float x, float y,sf::Int16 angle, sf::Color color, Game* game) {
 	rectSprite = sf::IntRect(0, 0, 300, 300);
 	sprite.setTextureRect(rectSprite);
 	sprite.setScale(sf::Vector2f(0.5, 0.5));
@@ -34,11 +34,14 @@ Sumo::Sumo(float x, float y,int angle, sf::Color color) {
 	contour.setOutlineThickness(2);
 	contour.setOutlineColor(color);
     contour.setRotation(angle);
+
 	
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
 	sprite.setPosition(px, py);
 	control_setup = static_cast<CONTROLS>(players_counter++);
 	disabled = false;
+    didMove = false;
+	this->game = game;
 }
 
 Sumo::~Sumo(){
@@ -58,66 +61,64 @@ void Sumo::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	//target.draw(this->contour, state);
 }
 
-void Sumo::update() {
-	if (clock.getElapsedTime().asSeconds() > 0.022f) {
-	    Player_Input input = {};
-		this->sprite.move(this->velocity);
-		this->contour.move(this->velocity);
 
-		contour.setRotation(angle);
-		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
-		if (actual_velocity > -0.2 && actual_velocity < 0.2)
-			actual_velocity = 0;
-		
-		if (actual_velocity > 0) {
-			actual_velocity -= FRICTION;
-		}
-		else if (actual_velocity < 0) {
-			actual_velocity += FRICTION;
-		}	
+void Sumo::sendInput(){
 
-		bool didMove = actual_velocity !=0;
-
-		if(!disabled) {
+    if (clock.getElapsedTime().asSeconds() > 0.011f) {
+        Player_Input input = {};
+        if (!disabled) {
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0])) {
-                if (actual_velocity < MAX_VELOCITY)
-                    actual_velocity += D_VELOCITY;
-                didMove = true;
-                input.down=true;
+                input.down = true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1])) {
-                if (actual_velocity > -MAX_VELOCITY)
-                    actual_velocity -= D_VELOCITY;
-                didMove = true;
-                input.up=true;
+
+                input.up = true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2])) {
-                angle -= ANGLE_ROTATION;
-                angle += 360;
-                angle %= 360;
-                didMove = true;
-                input.left=true;
+                input.left = true;
             }
 
             if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3])) {
-                angle += ANGLE_ROTATION;
-                angle += 360;
-                angle %= 360;
-                didMove = true;
                 input.right = true;
             }
         }
 
 
-		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
-		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
-		
+        this->game->getSocketHandler()->sendInput(input);
+    }
+
+}
+
+
+void Sumo::update() {
+	if (clock.getElapsedTime().asSeconds() > 0.022f) {
+	    Player_Input input = {};
+//		this->sprite.move(0,0);
+//		this->contour.move(0,0);
+//
+		contour.setRotation(angle);
+//		//(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
+//		if (actual_velocity > -0.2 && actual_velocity < 0.2)
+//			actual_velocity = 0;
+//
+//		if (actual_velocity > 0) {
+//			actual_velocity -= FRICTION;
+//		}
+//		else if (actual_velocity < 0) {
+//			actual_velocity += FRICTION;
+//		}
+//
+//		bool didMove = actual_velocity !=0;
+
+//		velocity.y = actual_velocity * cos(((float)angle / 360.f) * 2 * M_PI);
+//		velocity.x = - actual_velocity * sin(((float)angle / 360.f) * 2 * M_PI);
+
 		setDirection(angle / 5);
-		
-		if (didMove) {
+
+		if (this->didMove) {
 			//frames changing
 			if (rectSprite.left == 1500) {
 				rectSprite.left = 0;
@@ -236,4 +237,8 @@ sf::Time Sumo::elapsedTimeCollision() {
 }
 void Sumo::wasCollision() {
     collision_cooldown.restart();
+}
+
+void Sumo::setSumoDidMove(bool val) {
+    didMove = val;
 }

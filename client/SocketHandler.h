@@ -6,6 +6,7 @@
 #define SUMO_PR_SOCKETHANDLER_H
 #include <SFML/Network/UdpSocket.hpp>
 #include "Sumo.h"
+#include "../common/messages.h"
 
 
 class SocketHandler {
@@ -16,9 +17,10 @@ class SocketHandler {
 
 public:
     SocketHandler(sf::IpAddress host,unsigned short port);
-    void sendInput(sf::Uint8 input);
+    void sendInput(Player_Input g_input);
     void recieve(Sumo** players);
     bool join();
+    sf::Int16 getPlayerId();
 
 };
 

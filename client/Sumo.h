@@ -8,6 +8,7 @@
 #ifndef SUMO_PR_SUMO_H
 #define SUMO_PR_SUMO_H
 
+class Game;
 
 enum CONTROLS{
     arrows,
@@ -20,6 +21,7 @@ class Sumo : public sf::Drawable {
 	sf::IntRect rectSprite;
 	EllipseShape contour;
 	sf::Clock clock;
+    sf::Clock input_clock;
 	sf::Clock collision_cooldown;
 
 	//float max_velocity = 6.f;
@@ -32,11 +34,13 @@ class Sumo : public sf::Drawable {
 	CONTROLS control_setup;
 	static int players_counter;
 	bool disabled;
+	Game* game;
+    bool didMove;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates state) const override;
 
 public:
-	Sumo(float x, float y,int angle, sf::Color color);
+	Sumo(float x, float y,sf::Int16 angle, sf::Color color,Game* game);
 	Sumo() = delete;
 	~Sumo();
 
@@ -59,6 +63,8 @@ public:
 	bool isDisabled();
 	sf::Time elapsedTimeCollision();
 	void wasCollision();
+    void setSumoDidMove(bool);
+    void sendInput();
 };
 
 #endif//SUMO_PR_SUMO_H

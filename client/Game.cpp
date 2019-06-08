@@ -20,8 +20,8 @@ Game::Game(sf::RenderWindow &main_window) {
     ring= new Ring("spritesheets/ring.png");
 
 	players = new Sumo*[LOCAL_PLAYERS_MAX];
-	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
-    players[1] = new Sumo(40, -100, 60, sf::Color::Red);
+	players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue,this);
+    players[1] = new Sumo(40, -100, 60, sf::Color::Red,this);
 
  //   socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),5600);
 }
@@ -61,8 +61,12 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
         }
 		//players moving
 		//check only once for two players
-		players[0]->checkForCollision(*players[1]);
+		//players[0]->checkForCollision(*players[1]);
 		//players[1]->checkForCollision(*players[0]);
+        socket_handler->recieve(players);
+
+        players[socket_handler->getPlayerId()]->sendInput();
+
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
 			players[i]->update();
 		}
@@ -81,12 +85,12 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
 			main_window.draw(*players[i]);
 		}
 
-        //disabling players outside the ring
-        for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-            if (!ring->isInside(players[i])) {
-                players[i]->disable();
-            }
-        }
+//        //disabling players outside the ring
+//        for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
+//            if (!ring->isInside(players[i])) {
+//                players[i]->disable();
+//            }
+//        }
         main_window.display();
     }
 }
@@ -98,8 +102,8 @@ void Game::restartGame() {
     delete [] players;
 
     players = new Sumo*[LOCAL_PLAYERS_MAX];
-    players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue);
-    players[1] = new Sumo(40, -100, 60, sf::Color::Red);
+    players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue,this);
+    players[1] = new Sumo(40, -100, 60, sf::Color::Red,this);
 }
 
 bool Game::join() {
@@ -109,4 +113,9 @@ bool Game::join() {
 void Game::setSocketHandler(SocketHandler *socket_handler) {
 
     this->socket_handler = socket_handler;
+}
+
+
+SocketHandler* Game::getSocketHandler(){
+    return this->socket_handler;
 }

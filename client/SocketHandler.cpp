@@ -4,19 +4,19 @@
 
 #include <iostream>
 #include "SocketHandler.h"
-#include "Sumo.h"
-#include "../common/messages.h"
 
 sf::Packet& operator >>(sf::Packet& packet, Sumo& sumo)
 {
     float vx,vy,x,y;
     sf::Int16 angle;
+    bool didMove;
 
-    packet >> vx >> vy >> angle>>x>>y;
+    packet >> vx >> vy >> angle >>x>>y>>didMove;
     sumo.setAngle(angle);
-    sumo.setVelocity(sf::Vector2f(vx,vy));
+    //sumo.setVelocity(sf::Vector2f(vx,vy));
     sumo.getSprite().setPosition(x,y);
     sumo.getContour().setPosition(x,y+25);
+    sumo.setSumoDidMove(didMove);
     return packet;
 }
 
@@ -28,7 +28,7 @@ SocketHandler::SocketHandler(sf::IpAddress host,unsigned short port) {
 
 }
 
-void SocketHandler::sendInput(sf::Uint8 input){
+void SocketHandler::sendInput(Player_Input g_input){
     sf::Packet packet;
     if (slot != 0xFFFF)
     {
@@ -36,10 +36,10 @@ void SocketHandler::sendInput(sf::Uint8 input){
 
         packet << slot;
 
-//        sf::Uint8 input = 	(sf::Uint8)g_input.up |
-//                         ((sf::Uint8)g_input.down << 1) |
-//                         ((sf::Uint8)g_input.left << 2) |
-//                         ((sf::Uint8)g_input.right << 3);
+        sf::Uint8 input = 	(sf::Uint8)g_input.up |
+                         ((sf::Uint8)g_input.down << 1) |
+                         ((sf::Uint8)g_input.left << 2) |
+                         ((sf::Uint8)g_input.right << 3);
 
        packet << input;
         if(socket.send(packet, host, port) != sf::Socket::Done)
@@ -92,22 +92,33 @@ return false;
 void SocketHandler::recieve(Sumo **players) {
     sf::Packet packet;
     sf::Uint8 message = -1;
-    sf::Uint16 idx;
-    while (socket.receive(packet,host,port))
+    sf::Uint8 idx;
+    sf::SocketSelector selector;
+
+    selector.add(socket);
+    if (selector.wait(sf::microseconds(100)))
     {
+        socket.receive(packet,host,port);
         packet>>message;
         switch ((Server_Message)message)
         {
             case Server_Message::State:
             {
-                while(!packet.endOfPacket()) {
+                //while(!packet.endOfPacket()) {
                     packet >> idx;
                     packet >> *players[idx];
-                }
+
+                   // packet >> idx;
+                   // packet >> *players[idx];
+                //}
             }
                 break;
             default:
                 break;
         }
     }
+}
+
+sf::Int16 SocketHandler::getPlayerId() {
+    return slot;
 }
