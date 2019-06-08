@@ -2,10 +2,6 @@
 // Created by dominis on 08.04.19.
 //
 #include "Game.h"
-#include "../common/messages.h"
-#include <SFML/Window/Keyboard.hpp>
-#include <iostream>
-#include <string>
 
 sf::Keyboard::Key  keyboard_control[LOCAL_PLAYERS_MAX][4] = {
         {sf::Keyboard::Down,sf::Keyboard::Up,sf::Keyboard::Left,sf::Keyboard::Right},
@@ -22,8 +18,8 @@ Sumo::Sumo(float x, float y,sf::Int16 angle, sf::Color color, Game* game) {
     this->angle = angle;
     setDirection(angle/5);
 
-	float px = (float)SCREENSIZE::X / 2 - sprite.getScale().x * 300 * 0.5 + x;
-	float py = (float)SCREENSIZE::Y / 2 - sprite.getScale().y * 300 * 0.5 + y;
+	float px = POSITION_OFFSET_X + x;
+	float py = POSITION_OFFSET_Y + y;
 
 	contour.setRadius({ 32,28 });
 	contour.setOrigin({ contour.getRadius().x, contour.getRadius().y });
@@ -92,8 +88,6 @@ void Sumo::sendInput(){
 
 void Sumo::update() {
 	if (clock.getElapsedTime().asSeconds() > 0.022f) {
-	    Player_Input input = {};
-
 		contour.setRotation(angle);
 
 		setDirection(angle / 5);

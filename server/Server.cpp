@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include "Server.h"
-#include "../common/messages.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -214,13 +213,11 @@ bool isInterescting(Player_State &a, Player_State &b) {
     float x = a.sprite.getPosition().x - b.sprite.getPosition().x;
     float y = a.sprite.getPosition().y - b.sprite.getPosition().y;
     float dist = x * x + y * y;
-    float radius = 32;
+    float radius = 28;
     return dist <= (radius + radius )*(radius + radius);
 
 }
 void collide(Player_State &a, Player_State &b) {
-
-
     float av = abs(a.actual_velocity);
     float bv = abs(b.actual_velocity);
 
@@ -255,7 +252,5 @@ void collide(Player_State &a, Player_State &b) {
 bool Player_State::checkForCollision(Player_State &other) {
     if (!isInterescting(*this, other)) return false;
     collide(*this, other);
-
     return true;
-
 }

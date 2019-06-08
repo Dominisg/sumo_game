@@ -1,12 +1,10 @@
 //
 // Created by dominis on 08.04.19.
 //
-
 #include "Game.h"
 #include "../utils/Progressbar.h"
 
 Game::Game(sf::RenderWindow &main_window) {
-   
     Progressbar p_bar(main_window,sf::Vector2f(SCREENSIZE::X/2,SCREENSIZE::Y/2),200.,72.);
     auto *tmptexture = new sf::Texture[72];
 
@@ -20,10 +18,9 @@ Game::Game(sf::RenderWindow &main_window) {
     ring= new Ring("spritesheets/ring.png");
 
 	players = new Sumo*[MAX_CLIENTS];
-	players[0] = new Sumo(180.f, -180.0f, 230, sf::Color::Blue,this);
-    players[1] = new Sumo(40, -100, 60, sf::Color::Red,this);
-
- //   socket_handler = new SocketHandler(sf::IpAddress::getLocalAddress(),5600);
+    for(int i=0; i<MAX_CLIENTS; i++)
+	    players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
+                              DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color,this);
 }
 
 Game::~Game() {
@@ -59,10 +56,6 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
                     break;
             }
         }
-		//players moving
-		//check only once for two players
-		//players[0]->checkForCollision(*players[1]);
-		//players[1]->checkForCollision(*players[0]);
         socket_handler->recieve(players);
 
         players[socket_handler->getPlayerId()]->sendInput();
@@ -82,11 +75,9 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
 
 		//drawing players
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-            if(!players[i]->isDisabled())
-			    main_window.draw(*players[i]);
-		}
-
-
+            if (!players[i]->isDisabled())
+                main_window.draw(*players[i]);
+        }
         main_window.display();
     }
 }
@@ -97,9 +88,10 @@ void Game::restartGame() {
         delete players[i];
     delete [] players;
 
-    players = new Sumo*[LOCAL_PLAYERS_MAX];
-    players[0] = new Sumo(180.f, -180.0, 230, sf::Color::Blue,this);
-    players[1] = new Sumo(40, -100, 60, sf::Color::Red,this);
+    players = new Sumo*[MAX_CLIENTS];
+    for (int i = 0; i < MAX_CLIENTS; i++ )
+        players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,DEFAULT_POSITIONS[i].angle, sf::Color::Blue,this);
+
 }
 
 bool Game::join() {
@@ -114,4 +106,3 @@ void Game::setSocketHandler(SocketHandler *socket_handler) {
 SocketHandler* Game::getSocketHandler(){
     return this->socket_handler;
 }
-
