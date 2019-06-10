@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(sumo_pr client/main.cpp client/Sumo.cpp client/Sumo.h client/Game.cpp client/Menu.cpp client/Menu.h
         client/Game.h utils/Progressbar.cpp utils/Progressbar.h utils/EllipseShape.cpp utils/EllipseShape.h client/Ring.cpp
-        client/Ring.h client/SocketHandler.cpp client/SocketHandler.h common/messages.h)
+        client/Ring.h client/SocketHandler.cpp client/SocketHandler.h sumo_server server/Server.cpp server/Server.h common/messages.h server/BattleArea.cpp server/BattleArea.h)
 
 add_executable(sumo_server server/main.cpp server/Server.cpp server/Server.h common/messages.h server/BattleArea.cpp server/BattleArea.h utils/EllipseShape.cpp utils/EllipseShape.h)
 

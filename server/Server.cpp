@@ -33,7 +33,6 @@ void Server::perform() {
 
 
     while (true) {
-
         if ((result = socket.receive(packet_received, sender, port)) != sf::Socket::Done) {
             if (result == sf::Socket::NotReady) {
                 break;
@@ -64,14 +63,6 @@ void Server::perform() {
                             client_endpoints[slot].port = port;
                             client_endpoints[slot].in_use = true;
                             time_since_heard_from_clients[slot].restart();
-//                            client_objects[slot] = {};
-//                            client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,DEFAULT_POSITIONS[slot].y);
-//                            client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
-//                            client_objects[slot].contour.setRadius({ 32,28 });
-//                            client_objects[slot].contour.setOrigin({ client_objects[slot].contour.getRadius().x,
-//                                                                     client_objects[slot] .contour.getRadius().y });
-//                            client_objects[slot].contour.setPosition(DEFAULT_POSITIONS[slot].x, DEFAULT_POSITIONS[slot].y);
-//                            client_inputs[slot] = {};
                         }
                     } else {
                         packet_to_send << sf::Uint8(0);
@@ -146,7 +137,7 @@ void Server::perform() {
                         client_objects[slot].contour.setOrigin({client_objects[slot].contour.getRadius().x,
                                                                 client_objects[slot].contour.getRadius().y});
                         client_objects[slot].contour.setPosition(DEFAULT_POSITIONS[slot].x,
-                                                                 DEFAULT_POSITIONS[slot].y);
+                                                                 DEFAULT_POSITIONS[slot].y+25);
                         client_inputs[slot] = {};
                         client_endpoints[slot].in_game = true;
                         for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
@@ -181,6 +172,12 @@ void Server::perform() {
             if (started)
                 updateState();
         }
+    }
+}
+
+void Server::whilePerform(){
+    while (true){
+        perform();
     }
 }
 

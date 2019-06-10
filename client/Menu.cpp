@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "../server/Server.h"
 
 
 //sf::RenderWindow window(sf::VideoMode(1280, 800), "Sumo Slam");
@@ -132,8 +133,11 @@ void Menu::join(sf::RenderWindow &window) {
 void Menu::host(sf::RenderWindow &window) {
 	std::string ip = getAddress(window);
 	int port = getPort(ip);
+    Server server;
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
+    sf::Thread thread(&Server::whilePerform,&server);
+    thread.launch();
     Game game(new SocketHandler(sf::IpAddress(sf::IpAddress::LocalHost),port));
 	lobby(window,game);
 
@@ -178,7 +182,6 @@ void Menu::lobby(sf::RenderWindow &window, Game& game) {
 				if (start.getGlobalBounds().contains(mouse))
 				{
 					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
-                        //TODO: Uruchamioanko serwera jako wątek ;) Wyczekana kompilacja warunkowa, xD
                         if(game.join()) {
                             game.getSocketHandler()->sendStart();
                         }

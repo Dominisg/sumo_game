@@ -50,6 +50,7 @@ public:
     void sendBack();
     void sendOut(sf::Uint16 idx);
     void updateState();
+    void whilePerform();
 };
 
 #endif //SUMO_PR_SERVER_H
