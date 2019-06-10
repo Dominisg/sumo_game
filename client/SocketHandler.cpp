@@ -151,7 +151,7 @@ int SocketHandler::listenLobby() {
         {
             case Server_Message::Init:
             {
-                return 0;
+                return (int)Server_Message::Init;
             }
             default:
                 break;

@@ -154,28 +154,26 @@ void Server::perform() {
             }
 //TODO: Do przemyslenia - w trakcie bycia w lobby nie wysyłamy komunikatów, wiec by nas wyjebało \
             ale trzeba jakoś przekminić jak zaczac rozgrywke bez bracza który wyszedł z lobby.
-//            for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-//            {
-//
-//                if( client_endpoints[i].in_use )
-//                {
-//                    if(time_since_heard_from_clients[i].getElapsedTime()>sf::seconds(10.0)){
-//                        client_endpoints[i]={};
-//                        if(!started){
-//                            for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-//                            {
-//                                if( client_endpoints[i].in_use )
-//                                {
-//                                    if(!client_objects[i].ready)
-//                                        break;
-//                                }
-//                            }
-//                            started = true;
-//                        }
-//                    }
-//                }
-//            }
 
+            if(started) {
+                for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+
+                    if (client_endpoints[i].in_use) {
+                        if (time_since_heard_from_clients[i].getElapsedTime() > sf::seconds(10.0)) {
+                            client_endpoints[i] = {};
+                            if (!started) {
+                                for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+                                    if (client_endpoints[i].in_use) {
+                                        if (!client_objects[i].ready)
+                                            break;
+                                    }
+                                }
+                                started = true;
+                            }
+                        }
+                    }
+                }
+            }
 
             if(started)
                 updateState();
@@ -290,11 +288,11 @@ void collide(Player_State &a, Player_State &b) {
     b.actual_velocity = tmp;
 
     float tmp_x = a.velocity_x;
-    float tmp_y = b.velocity_y;
+    float tmp_y = a.velocity_y;
     a.velocity_x = b.velocity_x;
     a.velocity_y = b.velocity_y;
     b.velocity_x = tmp_x;
-    b.velocity_x = tmp_y;
+    b.velocity_y = tmp_y;
 
     //slower sumo gets rotation of faster
     if (av > bv) {

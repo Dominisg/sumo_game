@@ -109,7 +109,7 @@ void Menu::menu(sf::RenderWindow &window) {
 
 void Menu::join(sf::RenderWindow &window) {
 	std::string ip = getAddress(window);
-	int port = getPort(ip);
+	int port = getPort(ip),result;
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
     Game game(new SocketHandler(sf::IpAddress(ip),port));
@@ -117,7 +117,9 @@ void Menu::join(sf::RenderWindow &window) {
     if(game.join()) {
         std::cout<<"Wchodze do lobby!"<<std::endl;
 		game.getSocketHandler()->sendStart();
-		while(game.getSocketHandler()->listenLobby());
+		while((result=game.getSocketHandler()->listenLobby()) != (int)Server_Message::Init){
+		    ///TODO zmiana ewenualnej liczby graczy
+		}
 		game.init(window);
 		game.getSocketHandler()->sendReady();
         game.mainLoop(window);
@@ -133,7 +135,7 @@ void Menu::host(sf::RenderWindow &window) {
 	int port = getPort(ip);
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
-    Game game(new SocketHandler(sf::IpAddress(ip),port));
+    Game game(new SocketHandler(sf::IpAddress(sf::IpAddress::LocalHost),port));
 	lobby(window,game);
 
 	//state = MENU;
@@ -178,21 +180,20 @@ void Menu::lobby(sf::RenderWindow &window, Game& game) {
 				{
 					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
                         //TODO: Uruchamioanko serwera jako wątek ;) Wyczekana kompilacja warunkowa, xD
-                        game.getSocketHandler()->sendStart();
+                        if(game.join()) {
+                            game.getSocketHandler()->sendStart();
+                        }
 					}
 				}
 				break;
 			}
-
-            if(!game.getSocketHandler()->listenLobby()){
-                game.init(window);
-                game.getSocketHandler()->sendReady();
-                game.mainLoop(window);
-            }
-
-
         }
 
+        if(game.getSocketHandler()->listenLobby() == (int)Server_Message::Init){
+            game.init(window);
+            game.getSocketHandler()->sendReady();
+            game.mainLoop(window);
+        }
 		window.clear();
 		window.draw(title);
 		window.draw(lobby);
