@@ -116,7 +116,6 @@ void Menu::join(sf::RenderWindow &window) {
     
     if(game.join()) {
         std::cout<<"Wchodze do lobby!"<<std::endl;
-		game.getSocketHandler()->sendStart();
 		while((result=game.getSocketHandler()->listenLobby()) != (int)Server_Message::Init){
 		    ///TODO zmiana ewenualnej liczby graczy
 		}
