@@ -9,27 +9,30 @@ Game::Game(SocketHandler *socket_handler) {
 }
 
 void Game::init(sf::RenderWindow &main_window){
-    Progressbar p_bar(main_window,sf::Vector2f(SCREENSIZE::X/2,SCREENSIZE::Y/2),200.,72.);
-    auto *tmptexture = new sf::Texture[72];
+    static int initialized=0;
+    if(!initialized) {
+        initialized = 1;
+        Progressbar p_bar(main_window, sf::Vector2f(SCREENSIZE::X / 2, SCREENSIZE::Y / 2), 200., 72.);
+        auto *tmptexture = new sf::Texture[72];
 
-    for (int i = 0; i < 72; i++) {
-        std::string filename = "spritesheets/sumo_angle" + std::to_string(5 * i) + ".png";
-        tmptexture[i].loadFromFile(filename);
-        p_bar.updateProgress(main_window, i);
+        for (int i = 0; i < 72; i++) {
+            std::string filename = "spritesheets/sumo_angle" + std::to_string(5 * i) + ".png";
+            tmptexture[i].loadFromFile(filename);
+            p_bar.updateProgress(main_window, i);
+        }
+        Sumo::setTextures(tmptexture);
+
+        ring = new Ring("spritesheets/ring.png");
+
+        players = new Sumo *[MAX_CLIENTS];
+        for (int i = 0; i < MAX_CLIENTS; i++)
+            players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
+                                  DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color, this);
     }
-    Sumo::setTextures(tmptexture);
-
-    ring= new Ring("spritesheets/ring.png");
-
-    players = new Sumo*[MAX_CLIENTS];
-    for(int i=0; i<MAX_CLIENTS; i++)
-        players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
-                              DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color,this);
 }
 
 Game::~Game() {
-    int p_cnt = Sumo::getPlayersCounter();
-	for (int i = 0; i < p_cnt; i++)
+	for (int i = 0; i < MAX_CLIENTS; i++)
 		delete players[i];
 
     delete [] players;
@@ -60,7 +63,8 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
                     break;
             }
         }
-        socket_handler->recieve(players);
+        if(socket_handler->receive(players) == (int)Server_Message::Out)
+            break;
 
         players[socket_handler->getPlayerId()]->sendInput();
 

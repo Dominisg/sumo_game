@@ -6,17 +6,16 @@
 #include "Server.h"
 
 #define _USE_MATH_DEFINES
+
 #include <math.h>
 
 
-sf::Packet& operator <<(sf::Packet& packet,  Player_State& sumo)
-{
-    return packet << sumo.angle << sumo.sprite.getPosition().x<<sumo.sprite.getPosition().y <<sumo.didMove;
+sf::Packet &operator<<(sf::Packet &packet, Player_State &sumo) {
+    return packet << sumo.angle << sumo.sprite.getPosition().x << sumo.sprite.getPosition().y << sumo.didMove;
 }
 
 Server::Server() {
-    if (socket.bind(5600) != sf::Socket::Done)
-    {
+    if (socket.bind(5600) != sf::Socket::Done) {
         // error...
     }
     socket.setBlocking(false);
@@ -33,10 +32,10 @@ void Server::perform() {
     int result;
 
 
-    while(true) {
+    while (true) {
 
         if ((result = socket.receive(packet_received, sender, port)) != sf::Socket::Done) {
-            if (result == sf::Socket::NotReady){
+            if (result == sf::Socket::NotReady) {
                 break;
             }
         } else {
@@ -44,7 +43,7 @@ void Server::perform() {
 
             switch ((Client_Message) message) {
                 case Client_Message::Join: {
-                    std::cout<<"Ktoś wchodzi!"<<std::endl;
+                    std::cout << "Ktoś wchodzi!" << std::endl;
                     sf::Int16 slot = -1;
                     for (sf::Int16 i = 0; i < MAX_CLIENTS; ++i) {
                         if (client_endpoints[i].in_use == 0) {
@@ -56,7 +55,7 @@ void Server::perform() {
                     packet_to_send << (sf::Uint8) Server_Message::Join_Result;
 
                     if (slot != -1) {
-                        std::cout<<"No i wszedł!"<<std::endl;
+                        std::cout << "No i wszedł!" << std::endl;
                         packet_to_send << sf::Uint8(1);
                         packet_to_send << sf::Int16(slot);
 
@@ -65,10 +64,14 @@ void Server::perform() {
                             client_endpoints[slot].port = port;
                             client_endpoints[slot].in_use = true;
                             time_since_heard_from_clients[slot].restart();
-                            client_objects[slot] = {};
-                            client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,DEFAULT_POSITIONS[slot].y);
-                            client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
-                            client_inputs[slot] = {};
+//                            client_objects[slot] = {};
+//                            client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,DEFAULT_POSITIONS[slot].y);
+//                            client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
+//                            client_objects[slot].contour.setRadius({ 32,28 });
+//                            client_objects[slot].contour.setOrigin({ client_objects[slot].contour.getRadius().x,
+//                                                                     client_objects[slot] .contour.getRadius().y });
+//                            client_objects[slot].contour.setPosition(DEFAULT_POSITIONS[slot].x, DEFAULT_POSITIONS[slot].y);
+//                            client_inputs[slot] = {};
                         }
                     } else {
                         packet_to_send << sf::Uint8(0);
@@ -115,13 +118,11 @@ void Server::perform() {
                 case Client_Message::Start: {
                     sf::Int16 slot;
                     packet_received >> slot;
-                    std::cout<<"Wciśniety START"<<std::endl;
-                    if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port) {
+                    std::cout << "Wciśniety START" << std::endl;
+                    if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port and !started) {
                         packet_to_send << (sf::Uint8) Server_Message::Init;
-                        for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-                        {
-                            if( client_endpoints[i].in_use )
-                            {
+                        for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+                            if (client_endpoints[i].in_use) {
                                 socket.send(packet_to_send, client_endpoints[i].address, client_endpoints[i].port);
                             }
                         }
@@ -129,7 +130,7 @@ void Server::perform() {
                 }
                     break;
 
-                case Client_Message::Ready:{
+                case Client_Message::Ready: {
 
                     sf::Int16 slot;
                     packet_received >> slot;
@@ -137,12 +138,23 @@ void Server::perform() {
                     if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port) {
                         time_since_heard_from_clients[slot].restart();
                         client_objects[slot].ready = true;
-                        for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-                        {
-                            if( client_endpoints[i].in_use )
-                            {
-                                if(!client_objects[i].ready)
+                        client_objects[slot] = {};
+                        client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,
+                                                                DEFAULT_POSITIONS[slot].y);
+                        client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
+                        client_objects[slot].contour.setRadius({32, 28});
+                        client_objects[slot].contour.setOrigin({client_objects[slot].contour.getRadius().x,
+                                                                client_objects[slot].contour.getRadius().y});
+                        client_objects[slot].contour.setPosition(DEFAULT_POSITIONS[slot].x,
+                                                                 DEFAULT_POSITIONS[slot].y);
+                        client_inputs[slot] = {};
+                        client_endpoints[slot].in_game = true;
+                        for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+                            if (client_endpoints[i].in_use) {
+                                if (!client_objects[i].ready)
                                     break;
+                                else {
+                                }
                             }
                         }
                         started = true;
@@ -150,115 +162,125 @@ void Server::perform() {
                     }
 
                 }
-                break;
+                    break;
             }
 //TODO: Do przemyslenia - w trakcie bycia w lobby nie wysyłamy komunikatów, wiec by nas wyjebało \
             ale trzeba jakoś przekminić jak zaczac rozgrywke bez bracza który wyszedł z lobby.
 
-            if(started) {
+            if (started) {
                 for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
 
                     if (client_endpoints[i].in_use) {
                         if (time_since_heard_from_clients[i].getElapsedTime() > sf::seconds(10.0)) {
                             client_endpoints[i] = {};
-                            if (!started) {
-                                for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
-                                    if (client_endpoints[i].in_use) {
-                                        if (!client_objects[i].ready)
-                                            break;
-                                    }
-                                }
-                                started = true;
-                            }
                         }
                     }
                 }
             }
 
-            if(started)
+            if (started)
                 updateState();
         }
     }
 }
 
-void Server::sendBack(){
+void Server::sendBack() {
     sf::Packet packet_to_send;
-    packet_to_send << (sf::Int8)Server_Message::State;
+    packet_to_send << (sf::Int8) Server_Message::State;
 
-    for( sf::Uint8 i = 0; i < MAX_CLIENTS; ++i )
-    {
-        if( client_endpoints[i].in_use )
-        {
-            packet_to_send<<i;
-            packet_to_send<<client_objects[i];
+    for (sf::Uint8 i = 0; i < MAX_CLIENTS; ++i) {
+        if (client_endpoints[i].in_use && client_endpoints[i].in_game) {
+            packet_to_send << i;
+            packet_to_send << client_objects[i];
         }
     }
 
-    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i )
-    {
-        if( client_endpoints[i].in_use )
-        {
+    for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+        if (client_endpoints[i].in_use && client_endpoints[i].in_game) {
             socket.send(packet_to_send, client_endpoints[i].address, client_endpoints[i].port);
         }
     }
 }
 
-void Server::updateState(){
+void Server::sendOut(sf::Uint16 idx) {
+    sf::Packet packet;
+    packet << (sf::Uint8) Server_Message::Out;
+    packet << idx;
 
-    if (clock.getElapsedTime().asSeconds() > 0.022f){
-
-    for( sf::Uint16 i = 0; i < MAX_CLIENTS; ++i ) {
+    for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
         if (client_endpoints[i].in_use) {
-
-            for (sf::Uint16 j=i; j< MAX_CLIENTS; ++j)
-                client_objects[i].checkForCollision(client_objects[j]);
-
-            client_objects[i].sprite.move(client_objects[i].velocity_x, client_objects[i].velocity_y);
-
-
-            //(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
-            if (client_objects[i].actual_velocity > -0.2 && client_objects[i].actual_velocity < 0.2)
-                client_objects[i].actual_velocity = 0;
-
-            if (client_objects[i].actual_velocity > 0) {
-                client_objects[i].actual_velocity -= FRICTION;
-            } else if (client_objects[i].actual_velocity < 0) {
-                client_objects[i].actual_velocity += FRICTION;
-            }
-
-            client_objects[i].didMove = client_objects[i].actual_velocity != 0;
-
-            if (client_inputs[i].down) {
-                if (client_objects[i].actual_velocity < MAX_VELOCITY)
-                    client_objects[i].actual_velocity += D_VELOCITY;
-                client_objects[i].didMove = true;
-            }
-
-            if (client_inputs[i].up) {
-                if (client_objects[i].actual_velocity > -MAX_VELOCITY)
-                    client_objects[i].actual_velocity -= D_VELOCITY;
-                client_objects[i].didMove = true;
-            }
-
-            if (client_inputs[i].left) {
-                client_objects[i].angle -= ANGLE_ROTATION;
-                client_objects[i].angle += 360;
-                client_objects[i].angle %= 360;
-                client_objects[i].didMove = true;
-            }
-
-            if (client_inputs[i].right) {
-                client_objects[i].angle += ANGLE_ROTATION;
-                client_objects[i].angle += 360;
-                client_objects[i].angle %= 360;
-                client_objects[i].didMove = true;
-            }
-            client_objects[i].velocity_y =
-                    client_objects[i].actual_velocity * cos(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
-            client_objects[i].velocity_x =
-                    -client_objects[i].actual_velocity * sin(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
+            socket.send(packet, client_endpoints[i].address, client_endpoints[i].port);
         }
     }
+    client_endpoints[idx].in_game = false;
+    for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+        if (client_endpoints[i].in_use && client_endpoints[i].in_game) {
+            return;
+        }
+    }
+    started = false;
+}
+
+void Server::updateState() {
+
+    if (clock.getElapsedTime().asSeconds() > 0.022f) {
+
+        for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+            if (client_endpoints[i].in_use && client_endpoints[i].in_game) {
+
+                for (sf::Uint16 j = i; j < MAX_CLIENTS; ++j)
+                    if (client_endpoints[j].in_use && client_endpoints[i].in_game)
+                        client_objects[i].checkForCollision(client_objects[j]);
+
+                client_objects[i].sprite.move(client_objects[i].velocity_x, client_objects[i].velocity_y);
+                client_objects[i].contour.move(client_objects[i].velocity_x, client_objects[i].velocity_y);
+
+                if (!ring.isInside(&client_objects[i]))
+                    sendOut(i);
+
+                //(1) z powodu niedok�adno�ci kodowania liczb zmiennoprzecinkowych, wynik trzeba zaokr�gli�
+                if (client_objects[i].actual_velocity > -0.2 && client_objects[i].actual_velocity < 0.2)
+                    client_objects[i].actual_velocity = 0;
+
+                if (client_objects[i].actual_velocity > 0) {
+                    client_objects[i].actual_velocity -= FRICTION;
+                } else if (client_objects[i].actual_velocity < 0) {
+                    client_objects[i].actual_velocity += FRICTION;
+                }
+
+                client_objects[i].didMove = client_objects[i].actual_velocity != 0;
+
+                if (client_inputs[i].down) {
+                    if (client_objects[i].actual_velocity < MAX_VELOCITY)
+                        client_objects[i].actual_velocity += D_VELOCITY;
+                    client_objects[i].didMove = true;
+                }
+
+                if (client_inputs[i].up) {
+                    if (client_objects[i].actual_velocity > -MAX_VELOCITY)
+                        client_objects[i].actual_velocity -= D_VELOCITY;
+                    client_objects[i].didMove = true;
+                }
+
+                if (client_inputs[i].left) {
+                    client_objects[i].angle -= ANGLE_ROTATION;
+                    client_objects[i].angle += 360;
+                    client_objects[i].angle %= 360;
+                    client_objects[i].didMove = true;
+                }
+
+                if (client_inputs[i].right) {
+                    client_objects[i].angle += ANGLE_ROTATION;
+                    client_objects[i].angle += 360;
+                    client_objects[i].angle %= 360;
+                    client_objects[i].didMove = true;
+                }
+                client_objects[i].velocity_y =
+                        client_objects[i].actual_velocity * cos(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
+                client_objects[i].velocity_x =
+                        -client_objects[i].actual_velocity * sin(((float) client_objects[i].angle / 360.f) * 2 * M_PI);
+            }
+        }
         sendBack();
         clock.restart();
     }
@@ -267,15 +289,17 @@ void Server::updateState(){
 bool isInterescting(Player_State &a, Player_State &b) {
     //ellipse is estimated with cirlce
 
-    if(a.collision_cooldown.getElapsedTime().asSeconds()<0.3 && b.collision_cooldown.getElapsedTime().asSeconds()<0.3)
+    if (a.collision_cooldown.getElapsedTime().asSeconds() < 0.1 &&
+        b.collision_cooldown.getElapsedTime().asSeconds() < 0.1)
         return false;
     float x = a.sprite.getPosition().x - b.sprite.getPosition().x;
     float y = a.sprite.getPosition().y - b.sprite.getPosition().y;
     float dist = x * x + y * y;
     float radius = 28;
-    return dist <= (radius + radius )*(radius + radius);
+    return dist <= (radius + radius) * (radius + radius);
 
 }
+
 void collide(Player_State &a, Player_State &b) {
     float av = abs(a.actual_velocity);
     float bv = abs(b.actual_velocity);
@@ -297,13 +321,11 @@ void collide(Player_State &a, Player_State &b) {
     //slower sumo gets rotation of faster
     if (av > bv) {
         b.angle = a.angle;
-    }
-    else if (av == bv) {
+    } else if (av == bv) {
         sf::Int16 t = a.angle;
         a.angle = b.angle;
         b.angle = t;
-    }
-    else {
+    } else {
         a.angle = b.angle;
     }
 }

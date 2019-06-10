@@ -30,7 +30,7 @@ SocketHandler::SocketHandler(sf::IpAddress host,unsigned short port) {
 
 void SocketHandler::sendInput(Player_Input g_input){
     sf::Packet packet;
-    if (slot != 0xFFFF)
+    if (slot != (sf::Int16)0xFFFF)
     {
         packet << (sf::Uint8)Client_Message::Input;
 
@@ -56,6 +56,9 @@ bool SocketHandler::join(){
     sf::Uint8 message = -1;
     sf::Int8 result;
     sf::Int16 slot;
+
+    if(this->slot != (sf::Int16)0xFFFF)
+        return true;
 
     packet << (sf::Uint8) Client_Message::Join;
     if (socket.send(packet, host, port) != sf::Socket::Done)
@@ -106,7 +109,7 @@ void SocketHandler::sendReady() {
         std::cout<<"Error while saying that i;m ready."<<std::endl;
 }
 
-void SocketHandler::recieve(Sumo **players) {
+int SocketHandler::receive(Sumo **players) {
     sf::Packet packet;
     sf::Uint8 message = -1;
     sf::Uint8 idx;
@@ -129,9 +132,18 @@ void SocketHandler::recieve(Sumo **players) {
                     packet >> *players[idx];
                 }
             }
-                break;
+            break;
+            case  Server_Message::Out:{
+                packet >> idx;
+                if (idx == slot){
+                    return (int)Server_Message::Out;
+                }
+
+            }
+            break;
             default:
                 break;
+
         }
     }
 }

@@ -46,7 +46,7 @@ enum class Server_Message : sf::Uint8
     Join_Result,// tell client they're accepted/rejected
     State,// tell client game state
     Init, // tell client beginning settings
-    End  // tell client that game has ended
+    Out,  // tell client player is out of the ring
 };
 
 struct Player_Input

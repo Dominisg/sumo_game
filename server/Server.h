@@ -7,7 +7,8 @@
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
 #include "../common/messages.h"
-
+#include "../utils/EllipseShape.h"
+#include "BattleArea.h"
 
 
 typedef struct Player_State Player_State;
@@ -16,6 +17,7 @@ typedef struct Player_State Player_State;
      sf::Sprite sprite;
      float velocity_x,velocity_y;
      float actual_velocity;
+     EllipseShape contour;
      sf::Int16 angle;
      bool didMove;
      sf::Clock collision_cooldown;
@@ -29,6 +31,7 @@ struct IP_Endpoint
     sf::IpAddress address;
     unsigned short port;
     bool in_use;
+    bool in_game;
 };
 
 class Server {
@@ -38,12 +41,14 @@ class Server {
     sf::Clock time_since_heard_from_clients[MAX_CLIENTS];
     Player_State client_objects[MAX_CLIENTS];
     Player_Input client_inputs[MAX_CLIENTS]={};
+    BattleArea ring;
     bool started = false;
     sf::Clock clock;
 public:
     Server();
     void perform();
     void sendBack();
+    void sendOut(sf::Uint16 idx);
     void updateState();
 };
 

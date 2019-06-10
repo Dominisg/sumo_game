@@ -21,7 +21,7 @@ public:
     void sendStart();
     void sendReady();
     int listenLobby();
-    void recieve(Sumo** players);
+    int receive(Sumo** players);
     bool join();
     sf::Int16 getPlayerId();
 
