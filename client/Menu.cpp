@@ -111,6 +111,7 @@ void Menu::menu(sf::RenderWindow &window) {
 void Menu::join(sf::RenderWindow &window) {
 	std::string ip = getAddress(window);
 	int port = getPort(ip),result;
+	if (state == MENU) return;
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
     Game game(new SocketHandler(sf::IpAddress(ip),port));
@@ -132,6 +133,8 @@ void Menu::join(sf::RenderWindow &window) {
 
 void Menu::host(sf::RenderWindow &window) {
 	std::string p = getPort(window);
+	if (state == MENU) return;
+
 	//int port = getPort(ip);
 	int port = atoi(p.c_str());
     Server server;
@@ -305,13 +308,13 @@ std::string Menu::getAddress(sf::RenderWindow &window) {
 				window.close();
 				break;
 			case sf::Event::TextEntered:
-				if (index < 20 && (event.text.unicode >= '0' && event.text.unicode <= '9' || event.text.unicode=='.' || event.text.unicode==':')) {
+				if (index < 20 && (event.text.unicode >= '0' && event.text.unicode <= '9' || event.text.unicode == '.' || event.text.unicode == ':')) {
 					port[index++] = char(event.text.unicode);
 					if (index == 20) index--;
 				}
 				else if (index >= 0 && event.text.unicode == 8) { //backspace
 					port[index--] = '-';
-					if (index < 0) index=0;
+					if (index < 0) index = 0;
 
 				}
 				break;
@@ -329,6 +332,10 @@ std::string Menu::getAddress(sf::RenderWindow &window) {
 						portSet = true;
 					}
 				}
+				break;
+			case sf::Event::KeyPressed:
+				if(event.key.code == sf::Keyboard::Escape)
+					state = MENU;
 				break;
 			}
 		}
@@ -350,6 +357,7 @@ std::string Menu::getAddress(sf::RenderWindow &window) {
 		window.display();
 
 		if (portSet == true) break;
+		if (state == MENU) break;
 	}
 	port[index] = '\0';
 	return port;
@@ -419,6 +427,10 @@ std::string Menu::getPort(sf::RenderWindow &window) {
 					}
 				}
 				break;
+			case sf::Event::KeyPressed:
+				if (event.key.code == sf::Keyboard::Escape)
+					state = MENU;
+				break;
 			}
 		}
 
@@ -439,6 +451,7 @@ std::string Menu::getPort(sf::RenderWindow &window) {
 		window.display();
 
 		if (portSet == true) break;
+		if (state == MENU) break;
 	}
 	port[index] = '\0';
 	return port;
