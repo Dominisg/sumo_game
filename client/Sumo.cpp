@@ -18,12 +18,9 @@ Sumo::Sumo(float x, float y,sf::Int16 angle, sf::Color color, Game* game) {
     this->angle = angle;
     setDirection(angle/5);
 
-	float px = POSITION_OFFSET_X + x;
-	float py = POSITION_OFFSET_Y + y;
-
 	contour.setRadius({ 32,28 });
 	contour.setOrigin({ contour.getRadius().x, contour.getRadius().y });
-	contour.setPosition(px, py+25);
+	contour.setPosition(x, y+25);
 	contour.setFillColor(sf::Color::Transparent);
 	contour.setOutlineThickness(2);
 	contour.setOutlineColor(color);
@@ -31,7 +28,7 @@ Sumo::Sumo(float x, float y,sf::Int16 angle, sf::Color color, Game* game) {
 
 	
 	sprite.setOrigin({ (float)rectSprite.width/2, (float)rectSprite.height/2 });
-	sprite.setPosition(px, py);
+	sprite.setPosition(x, y);
 	control_setup = static_cast<CONTROLS>(players_counter++);
 	disabled = false;
     didMove = false;

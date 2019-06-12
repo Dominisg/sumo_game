@@ -122,14 +122,14 @@ void Server::perform() {
                     break;
 
                 case Client_Message::Ready: {
-
+                    int let_begin_flag = true;
                     sf::Int16 slot;
                     packet_received >> slot;
 
                     if (client_endpoints[slot].address == sender and client_endpoints[slot].port == port) {
                         time_since_heard_from_clients[slot].restart();
-                        client_objects[slot].ready = true;
                         client_objects[slot] = {};
+                        client_objects[slot].ready = true;
                         client_objects[slot].sprite.setPosition(DEFAULT_POSITIONS[slot].x,
                                                                 DEFAULT_POSITIONS[slot].y);
                         client_objects[slot].angle = DEFAULT_POSITIONS[slot].angle;
@@ -143,13 +143,12 @@ void Server::perform() {
                         for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
                             if (client_endpoints[i].in_use) {
                                 if (!client_objects[i].ready)
-                                    break;
+                                    let_begin_flag = false;
                                 else {
                                 }
                             }
                         }
-                        started = true;
-
+                        started = let_begin_flag;
                     }
 
                 }
