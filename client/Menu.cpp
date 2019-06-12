@@ -141,6 +141,8 @@ void Menu::host(sf::RenderWindow &window) {
 	
     sf::Thread thread(&Server::whilePerform,&server);
     thread.launch();
+    std::cout<<port<<std::endl;
+
     Game game(new SocketHandler(sf::IpAddress(sf::IpAddress::LocalHost),port));
 	hostLobby(window,game);
 
@@ -160,9 +162,9 @@ void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
 	lobby.setPosition((w - lobby.getGlobalBounds().width) / 2, 240);
 
 
-	//sf::Text start("Start!", font, 40);
-	//start.setStyle(sf::Text::Bold);
-	//start.setPosition((w - start.getGlobalBounds().width) / 2, 600);
+	sf::Text start("Start!", font, 40);
+	start.setStyle(sf::Text::Bold);
+	start.setPosition((w - start.getGlobalBounds().width) / 2, 600);
 
 	
 	while (window.isOpen()) {
@@ -175,23 +177,22 @@ void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
 				window.close();
 				break;
 			case sf::Event::MouseMoved:
-				/*if (start.getGlobalBounds().contains(mouse))
+				if (start.getGlobalBounds().contains(mouse))
 				{
 					start.setFillColor(sf::Color::Cyan);
 				}
-				else start.setFillColor(sf::Color::White);*/
+				else start.setFillColor(sf::Color::White);
 				break;
 			case sf::Event::MouseButtonReleased:
-				/*if (start.getGlobalBounds().contains(mouse))
+				if (start.getGlobalBounds().contains(mouse))
 				{
 					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
                         if(game.join()) {
                             game.getSocketHandler()->sendStart();
                         }
 					}
-				}*/
+				}
 				break;
-				
 			}
         }
 
@@ -203,7 +204,7 @@ void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
 		window.clear();
 		window.draw(title);
 		window.draw(lobby);
-		//window.draw(start);
+		window.draw(start);
 		window.display();
 	}
 }
@@ -236,21 +237,10 @@ void Menu::lobby(sf::RenderWindow &window, Game& game) {
 				window.close();
 				break;
 			case sf::Event::MouseMoved:
-				/*if (start.getGlobalBounds().contains(mouse))
-				{
-					start.setFillColor(sf::Color::Cyan);
-				}
-				else start.setFillColor(sf::Color::White);*/
+
 				break;
 			case sf::Event::MouseButtonReleased:
-				/*if (start.getGlobalBounds().contains(mouse))
-				{
-					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
-						if(game.join()) {
-							game.getSocketHandler()->sendStart();
-						}
-					}
-				}*/
+
 				break;
 
 			}
@@ -402,7 +392,7 @@ std::string Menu::getPort(sf::RenderWindow &window) {
 				window.close();
 				break;
 			case sf::Event::TextEntered:
-				if (index < 4 && (event.text.unicode >= '0' && event.text.unicode <= '9' || event.text.unicode == '.' || event.text.unicode == ':')) {
+				if (index < 4 && (event.text.unicode >= '0' && event.text.unicode <= '9')) {
 					port[index++] = char(event.text.unicode);
 					if (index == 4) index--;
 				}
@@ -453,7 +443,10 @@ std::string Menu::getPort(sf::RenderWindow &window) {
 		if (portSet == true) break;
 		if (state == MENU) break;
 	}
-	port[index] = '\0';
+	int last_used=-1;
+	while(port[++last_used] != '-' && port[last_used] != '\0');
+
+	port[last_used] = '\0';
 	return port;
 }
 
