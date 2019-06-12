@@ -115,15 +115,9 @@ void Menu::join(sf::RenderWindow &window) {
 	ip = getIP(ip);
 	std::cout << ip << " " << port << std::endl;
     Game game(new SocketHandler(sf::IpAddress(ip),port));
-	lobby(window, game);
     if(game.join()) {
         std::cout<<"Wchodze do lobby!"<<std::endl;
-		while((result=game.getSocketHandler()->listenLobby()) != (int)Server_Message::Init){
-		    ///TODO zmiana ewenualnej liczby graczy
-		}
-		game.init(window);
-		game.getSocketHandler()->sendReady();
-        game.mainLoop(window);
+        lobby(window, game);
     }else{
         std::cout<<"Serwer nas nie wpuscil!";
     }
@@ -142,8 +136,9 @@ void Menu::host(sf::RenderWindow &window) {
     sf::Thread thread(&Server::whilePerform,&server);
     thread.launch();
     std::cout<<port<<std::endl;
-
+    sf::sleep(sf::seconds(0.1));
     Game game(new SocketHandler(sf::IpAddress(sf::IpAddress::LocalHost),port));
+    game.join();
 	hostLobby(window,game);
 
 	//state = MENU;
@@ -187,9 +182,7 @@ void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
 				if (start.getGlobalBounds().contains(mouse))
 				{
 					if (event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left) {
-                        if(game.join()) {
-                            game.getSocketHandler()->sendStart();
-                        }
+                        game.getSocketHandler()->sendStart();
 					}
 				}
 				break;
@@ -245,7 +238,6 @@ void Menu::lobby(sf::RenderWindow &window, Game& game) {
 
 			}
 		}
-
 		if (game.getSocketHandler()->listenLobby() == (int)Server_Message::Init) {
 			game.init(window);
 			game.getSocketHandler()->sendReady();

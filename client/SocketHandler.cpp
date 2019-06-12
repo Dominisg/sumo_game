@@ -148,7 +148,7 @@ int SocketHandler::receive(Sumo **players) {
     }
 }
 
-//zrwaca 0, gdy należy zacząć rozgrywkę.
+//zrwaca Server_Message::Inits, gdy należy zacząć rozgrywkę.
 int SocketHandler::listenLobby() {
     sf::Packet packet;
     sf::Uint8 message = -1;
