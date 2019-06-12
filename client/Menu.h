@@ -24,10 +24,12 @@ private:
 	void menu(sf::RenderWindow &window);
 	void join(sf::RenderWindow &window);
 	void host(sf::RenderWindow &window);
+	void hostLobby(sf::RenderWindow &window,Game& game);
 	void lobby(sf::RenderWindow &window,Game& game);
 
 	std::string getAddress(sf::RenderWindow &window);
-	std::string getIP(std::string);
+	std::string getPort(sf::RenderWindow &window);
+	std::string getIP(std::string); //gets IP from getAddres()
 	int getPort(std::string);
 };
 
