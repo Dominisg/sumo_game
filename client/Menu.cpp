@@ -131,17 +131,19 @@ void Menu::host(sf::RenderWindow &window) {
 
 	//int port = getPort(ip);
 	int port = atoi(p.c_str());
-    Server server;
-	
+    Server server(port);
     sf::Thread thread(&Server::whilePerform,&server);
     thread.launch();
     std::cout<<port<<std::endl;
     sf::sleep(sf::seconds(0.1));
     Game game(new SocketHandler(sf::IpAddress(sf::IpAddress::LocalHost),port));
-    game.join();
-	hostLobby(window,game);
+    if(game.join()) {
+        hostLobby(window, game);
+    }else{
+        thread.terminate();
+    }
 
-	//state = MENU;
+	state = MENU;
 }
 
 void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
@@ -169,6 +171,7 @@ void Menu::hostLobby(sf::RenderWindow &window, Game& game) {
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 			case sf::Event::Closed:
+                game.getSocketHandler()->sendLeave();
 				window.close();
 				break;
 			case sf::Event::MouseMoved:
@@ -227,6 +230,7 @@ void Menu::lobby(sf::RenderWindow &window, Game& game) {
 		while (window.pollEvent(event)) {
 			switch (event.type) {
 			case sf::Event::Closed:
+                game.getSocketHandler()->sendLeave();
 				window.close();
 				break;
 			case sf::Event::MouseMoved:

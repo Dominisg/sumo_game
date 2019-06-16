@@ -5,7 +5,7 @@
 
 int main()
 {
-    Server server;
+    Server server(5600);
     while(true) {
         server.perform();
     }

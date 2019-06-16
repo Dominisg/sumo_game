@@ -6,6 +6,7 @@
 
 Game::Game(SocketHandler *socket_handler) {
     this->socket_handler = socket_handler;
+    players = nullptr;
 }
 
 void Game::init(sf::RenderWindow &main_window){
@@ -28,8 +29,13 @@ void Game::init(sf::RenderWindow &main_window){
         for (int i = 0; i < MAX_CLIENTS; i++)
             players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,
                                   DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color, this);
+    }else{
+        for (int i = 0; i < MAX_CLIENTS; i++)
+            players[i]->inGame(true);
     }
 }
+
+
 
 Game::~Game() {
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -69,7 +75,8 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
         players[socket_handler->getPlayerId()]->sendInput();
 
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-			players[i]->update();
+            if(!players[i]->isDisabled() && players[i]->isInGame())
+			    players[i]->update();
 		}
         main_window.clear();
 
@@ -77,13 +84,13 @@ void Game::mainLoop(sf::RenderWindow &main_window) {
 
         //drawing elipses
         for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-            if(!players[i]->isDisabled())
+            if(!players[i]->isDisabled() && players[i]->isInGame())
                 main_window.draw(players[i]->getContour());
         }
 
 		//drawing players
 		for (int i = 0; i < Sumo::getPlayersCounter(); i++) {
-            if (!players[i]->isDisabled())
+            if (!players[i]->isDisabled() && players[i]->isInGame())
                 main_window.draw(*players[i]);
         }
         main_window.display();
@@ -98,7 +105,7 @@ void Game::restartGame() {
 
     players = new Sumo*[MAX_CLIENTS];
     for (int i = 0; i < MAX_CLIENTS; i++ )
-        players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,DEFAULT_POSITIONS[i].angle, sf::Color::Blue,this);
+        players[i] = new Sumo(DEFAULT_POSITIONS[i].x, DEFAULT_POSITIONS[i].y,DEFAULT_POSITIONS[i].angle, DEFAULT_POSITIONS[i].color,this);
 
 }
 

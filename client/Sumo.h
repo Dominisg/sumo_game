@@ -28,6 +28,7 @@ class Sumo : public sf::Drawable {
 	bool disabled;
 	Game* game;
     bool didMove;
+    bool still_in_game;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates state) const override;
 
@@ -49,6 +50,8 @@ public:
 	bool isDisabled();
     void setSumoDidMove(bool);
     void sendInput();
+    void inGame(bool);
+    bool isInGame();
 };
 
 #endif//SUMO_PR_SUMO_H

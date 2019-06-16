@@ -15,7 +15,7 @@ public:
 	
 private:
 	int selectedIdx;
-	enum GameState { MENU, JOIN, HOST, GAME_OVER, END };
+	enum GameState { MENU, JOIN, HOST, END };
 	GameState state;
 	sf::Font font;
 	sf::Text menu_opts[MAX_ITEMS];

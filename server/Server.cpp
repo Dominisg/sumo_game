@@ -14,8 +14,8 @@ sf::Packet &operator<<(sf::Packet &packet, Player_State &sumo) {
     return packet << sumo.angle << sumo.sprite.getPosition().x << sumo.sprite.getPosition().y << sumo.didMove;
 }
 
-Server::Server() {
-    if (socket.bind(5600) != sf::Socket::Done) {
+Server::Server(short int port) {
+    if (socket.bind(port) != sf::Socket::Done) {
         // error...
     }
     socket.setBlocking(false);
@@ -154,7 +154,7 @@ void Server::perform() {
                 }
                     break;
             }
-//TODO: Do przemyslenia - w trakcie bycia w lobby nie wysyłamy komunikatów, wiec by nas wyjebało \
+//TODO: Do przemyslenia - w trakcie bycia w lobby nie wysyłamy komunikatów, wiec by nas wyrzuciło \
             ale trzeba jakoś przekminić jak zaczac rozgrywke bez bracza który wyszedł z lobby.
 
             if (started) {
@@ -198,22 +198,30 @@ void Server::sendBack() {
     }
 }
 
-void Server::sendOut(sf::Uint16 idx) {
+void Server::sendOut(sf::Uint8 idx) {
     sf::Packet packet;
     packet << (sf::Uint8) Server_Message::Out;
     packet << idx;
 
-    for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+    for (sf::Uint8 i = 0; i < MAX_CLIENTS; ++i) {
         if (client_endpoints[i].in_use) {
             socket.send(packet, client_endpoints[i].address, client_endpoints[i].port);
         }
     }
     client_endpoints[idx].in_game = false;
-    for (sf::Uint16 i = 0; i < MAX_CLIENTS; ++i) {
+    sf::Uint8 in_game = 0,last = 0;
+    for (sf::Uint8 i = 0; i < MAX_CLIENTS; ++i) {
         if (client_endpoints[i].in_use && client_endpoints[i].in_game) {
-            return;
+            in_game += 1;
+            last = i;
         }
     }
+    if(in_game == 1){
+        sendOut(last);
+    }
+    if(in_game != 0)
+        return;
+
     started = false;
 }
 

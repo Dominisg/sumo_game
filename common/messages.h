@@ -6,7 +6,7 @@
 #define SUMO_PR_MESSAGES_H
 
 #include <SFML/Config.hpp>
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 4
 
 enum SCREENSIZE{
     X = 1280,
@@ -25,8 +25,11 @@ constexpr float POSITION_OFFSET_X = SCREENSIZE ::X /2 - 0.25* 300;
 constexpr float POSITION_OFFSET_Y = SCREENSIZE ::Y /2 - 0.25* 300;
 
 
-const Position DEFAULT_POSITIONS[MAX_CLIENTS]={{POSITION_OFFSET_X  + 180.0f,POSITION_OFFSET_Y - 180.0f,230,sf::Color::Red},
-                                                   {POSITION_OFFSET_X + 40.0f, POSITION_OFFSET_Y - 100.0f,60,sf::Color::Blue}};
+const Position DEFAULT_POSITIONS[MAX_CLIENTS]={{POSITION_OFFSET_X  + 180.0f,POSITION_OFFSET_Y - 180.0f,235,sf::Color::Red},
+                                                   {POSITION_OFFSET_X + 40.0f, POSITION_OFFSET_Y - 100.0f,55,sf::Color::Blue},
+                                                   {POSITION_OFFSET_X  + 50.0f,POSITION_OFFSET_Y - 185.0f,145,sf::Color::Green},
+                                                  {POSITION_OFFSET_X + 140.0f, POSITION_OFFSET_Y - 90.0f,325,sf::Color::Yellow}};
+
 constexpr float MAX_VELOCITY = 6.f;
 constexpr float D_VELOCITY = 0.25f;
 constexpr float FRICTION = 0.04f;

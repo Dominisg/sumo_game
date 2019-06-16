@@ -20,6 +20,7 @@ public:
     void sendInput(Player_Input g_input);
     void sendStart();
     void sendReady();
+    void sendLeave();
     int listenLobby();
     int receive(Sumo** players);
     bool join();

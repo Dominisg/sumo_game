@@ -109,6 +109,14 @@ void SocketHandler::sendReady() {
         std::cout<<"Error while saying that i;m ready."<<std::endl;
 }
 
+void SocketHandler::sendLeave() {
+    sf::Packet packet;
+    packet << (sf::Uint8) Client_Message::Leave;
+    packet << slot;
+    if (socket.send(packet, host, port) != sf::Socket::Done)
+        std::cout<<"Error while saying that i;m ready."<<std::endl;
+}
+
 int SocketHandler::receive(Sumo **players) {
     sf::Packet packet;
     sf::Uint8 message = -1;
@@ -135,10 +143,10 @@ int SocketHandler::receive(Sumo **players) {
             break;
             case  Server_Message::Out:{
                 packet >> idx;
+                players[idx]->inGame(false);
                 if (idx == slot){
                     return (int)Server_Message::Out;
                 }
-
             }
             break;
             default:

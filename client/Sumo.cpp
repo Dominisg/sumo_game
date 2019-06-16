@@ -31,6 +31,7 @@ Sumo::Sumo(float x, float y,sf::Int16 angle, sf::Color color, Game* game) {
 	sprite.setPosition(x, y);
 	control_setup = static_cast<CONTROLS>(players_counter++);
 	disabled = false;
+	still_in_game = true;
     didMove = false;
 	this->game = game;
 }
@@ -58,20 +59,20 @@ void Sumo::sendInput(){
         Player_Input input = {};
         if (!disabled) {
 
-            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][0])) {
+            if (sf::Keyboard::isKeyPressed(keyboard_control[0][0])) {
                 input.down = true;
             }
 
-            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][1])) {
+            if (sf::Keyboard::isKeyPressed(keyboard_control[0][1])) {
 
                 input.up = true;
             }
 
-            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][2])) {
+            if (sf::Keyboard::isKeyPressed(keyboard_control[0][2])) {
                 input.left = true;
             }
 
-            if (sf::Keyboard::isKeyPressed(keyboard_control[control_setup][3])) {
+            if (sf::Keyboard::isKeyPressed(keyboard_control[0][3])) {
                 input.right = true;
             }
         }
@@ -133,4 +134,12 @@ bool Sumo::isDisabled() {
 
 void Sumo::setSumoDidMove(bool val) {
     didMove = val;
+}
+
+void Sumo::inGame(bool t) {
+    still_in_game = t;
+}
+
+bool Sumo::isInGame() {
+   return still_in_game;
 }
